@@ -9,7 +9,7 @@ const __dirname = new URL('.', import.meta.url).pathname;
 const excelFilePath = path.join(__dirname, '../assets', 'data.xlsx');
 
 // Path to the output JavaScript file
-const outputFilePath = path.join(__dirname, '/', 'content.js');
+const outputFilePath = path.join(__dirname, '/', 'content.ts');
 function replaceSpacesWithUnderscores(input) {
   return input.replace(/ /g, '_');
 }
