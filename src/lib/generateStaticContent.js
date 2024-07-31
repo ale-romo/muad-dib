@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 const __dirname = new URL('.', import.meta.url).pathname;
 
 // Path to your Excel file in the /assets directory
-const excelFilePath = path.join(__dirname, '../assets', 'test.xlsx');
+const excelFilePath = path.join(__dirname, '../assets', 'data.xlsx');
 
 // Path to the output JavaScript file
 const outputFilePath = path.join(__dirname, '/', 'content.js');
@@ -14,32 +14,39 @@ function replaceSpacesWithUnderscores(input) {
   return input.replace(/ /g, '_');
 }
 
+// Utility function to check if a row is empty
+const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');
+
 // Function to generate static content
 const generateStaticContent = async () => {
   try {
+
     const fileBuffer = await fs.readFile(excelFilePath);
     const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-    let worksheets = {}
-    for (const sheetName of workbook.SheetNames) {
-      worksheets[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    }
+    const worksheets = {};
+    workbook.SheetNames.forEach(sheetName => {
+      const worksheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      const filteredRows = rows.filter(row => !isEmptyRow(row));
+
+      worksheets[sheetName] = filteredRows;
+    });
 
     const worksheetsString = Object.entries(worksheets).map(([sheetName, rows]) => {
       const rowsString = rows.map(row =>
-        `{ ${Object.entries(row).map(([key, value]) =>
-          `${replaceSpacesWithUnderscores(key)}: ${JSON.stringify(value)}`
-        ).join(', ')} }`
+        Array.isArray(row)
+          ? `[${row.map(value => JSON.stringify(value)).join(', ')}]`
+          : JSON.stringify(row)
       ).join(',\n');
 
       return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;
     }).join(',\n');
 
     const jsContent = `
-      const data = {
-        ${worksheetsString}
-      };
-      export default data;
-    `;
+export const data = {
+      ${worksheetsString}
+  };`;
 
     // Save the JavaScript file
     await fs.writeFile(outputFilePath, jsContent);

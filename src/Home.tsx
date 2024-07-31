@@ -1,24 +1,38 @@
-import content from './lib/content'
+import { data } from './lib/content';
+import { ReactNode } from 'react';
 
-// const Row = (row) => {
-//   return <>{Object.keys(row).map(([key, value]) => {
-//     <div>{key}: {value}</div>
-//   }) }</>
-// }
 
-// const Sheet = (sheet) => {
-//   return <ul>{Object.keys(sheet).map(([key, value],i) =>  {
-//     return <Row>
-//   })}</ul>
-// }
+interface CellProps {
+  children: ReactNode | ReactNode[];
+}
+
+const Cell: React.FC<CellProps> = ({ children }) => {
+  return <li>{children}</li>;
+};
+
+interface RowProps {
+  row: (string | number)[];
+}
+
+const Row: React.FC<RowProps> = ({ row }) => {
+  return (
+    <ul className="flex gap-4 text-left">
+      {row.map((cell: string | number, i: number) => (
+        <Cell key={i}>{cell}</Cell>
+      ))}
+    </ul>
+  );
+};
 
 const Home = () => {
-  console.log()
-  return <h2 className="text-red-500">
-    Home Page
-    {content.Sheet1[0].Type_1}
-    {/* {Object.keys(content).map(([key, value],i) =>  <Sheet key={`sheets-${i}`} sheet={value} />)} */}
-  </h2>;
+  return (
+    <div>
+      <h2 className="text-red-500">Home Page</h2>
+      {data.Ports.map((row: (string | number)[], i: number) => (
+        <Row key={`Ports-${i}`} row={row} />
+      ))}
+    </div>
+  );
 };
 
 export default Home;
