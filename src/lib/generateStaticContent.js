@@ -9,20 +9,42 @@ const __dirname = new URL('.', import.meta.url).pathname;
 const excelFilePath = path.join(__dirname, '../assets', 'test.xlsx');
 
 // Path to the output JavaScript file
-// const outputFilePath = path.join(__dirname, '/', 'generatedData.js');
+const outputFilePath = path.join(__dirname, '/', 'content.js');
+function replaceSpacesWithUnderscores(input) {
+  return input.replace(/ /g, '_');
+}
 
 // Function to generate static content
 const generateStaticContent = async () => {
   try {
     const fileBuffer = await fs.readFile(excelFilePath);
     const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-    console.log(workbook)
-  //   let worksheets = {}
-    // for (const sheetName of workbook.sheetNames) {
-    //   console.log(sheetName)
-    //   // worksheets[sheetName] = XLSX.utils.sheets_to_json(workbook.Sheets[sheetName]);
-    // }
-  //   console.log("json:\n", JSON.stringify(worksheets.Sheet1), "\n\n");
+    let worksheets = {}
+    for (const sheetName of workbook.SheetNames) {
+      worksheets[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+    }
+
+    const worksheetsString = Object.entries(worksheets).map(([sheetName, rows]) => {
+      const rowsString = rows.map(row =>
+        `{ ${Object.entries(row).map(([key, value]) =>
+          `${replaceSpacesWithUnderscores(key)}: ${JSON.stringify(value)}`
+        ).join(', ')} }`
+      ).join(',\n');
+
+      return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;
+    }).join(',\n');
+
+    const jsContent = `
+      const data = {
+        ${worksheetsString}
+      };
+      export default data;
+    `;
+
+    // Save the JavaScript file
+    await fs.writeFile(outputFilePath, jsContent);
+    console.log('JavaScript file with Excel data generated successfully.');
+
   } catch (error) {
     console.error('Error generating static content:', error);
   }
