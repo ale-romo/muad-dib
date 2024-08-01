@@ -12,6 +12,7 @@ import {
 import { Button } from "src/components/ui/button"
 import Home from 'src/Home';
 import Page from 'src/Page';
+import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 
 type View = string;
 
@@ -48,31 +49,39 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
-      <nav>
+    <div className="p-5">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="md:hidden">Open</Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col">
-          <SheetHeader>
-            <SheetTitle>Muad'Dib</SheetTitle>
-            <SheetDescription>
-              Access the forbidden knowledge
-            </SheetDescription>
-          </SheetHeader>
-            <SheetClose asChild>
-              <Button onClick={() => navigate('home')}>Home</Button>
-            </SheetClose>
-            {Object.entries(data).map(([key]) =>
+            <SheetHeader>
+              <SheetTitle>Muad'Dib</SheetTitle>
+              <SheetDescription>
+                Access the forbidden knowledge
+              </SheetDescription>
+            </SheetHeader>
+            <nav>
               <SheetClose asChild>
-                <Button key={key} onClick={() => navigate(key)}>{key}</Button>
+                <Button onClick={() => navigate('home')}>Home</Button>
               </SheetClose>
-            )}
+              {Object.entries(data).map(([key]) =>
+                <SheetClose key={key} asChild>
+                  <Button onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
+                </SheetClose>
+              )}
+            </nav>
           </SheetContent>
         </Sheet>
-      </nav>
-      {renderView()}
+        <main className="flex gap-5 p-5">
+          <nav className="hidden md:flex items-stretch flex-col gap-5">
+            <Button onClick={() => navigate('home')}>Home</Button>
+            {Object.entries(data).map(([key]) =>
+              <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
+            )}
+          </nav>
+        {renderView()}
+      </main>
     </div>
   );
 };

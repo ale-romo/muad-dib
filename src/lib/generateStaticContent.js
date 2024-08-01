@@ -1,6 +1,7 @@
 import fs from 'fs/promises'; // Use promises API for async file operations
 import path from 'path';
 import * as XLSX from 'xlsx';
+import { replaceSpacesWithUnderscores } from './handleNames';
 
 // Resolve the directory of the current module
 const __dirname = new URL('.', import.meta.url).pathname;
@@ -10,9 +11,6 @@ const excelFilePath = path.join(__dirname, '../assets', 'data.xlsx');
 
 // Path to the output JavaScript file
 const outputFilePath = path.join(__dirname, '/', 'content.ts');
-function replaceSpacesWithUnderscores(input) {
-  return input.replace(/ /g, '_');
-}
 
 // Utility function to check if a row is empty
 const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');

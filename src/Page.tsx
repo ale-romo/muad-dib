@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import {
   Table,
   TableBody,
@@ -7,13 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "src/components/ui/table"
-
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "src/components/ui/card"
+import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
 
 
 interface RowProps {
@@ -31,15 +30,15 @@ const Row: React.FC<RowProps> = ({ row }) => {
     ))}</TableRow>
 };
 const HeaderRow: React.FC<RowProps> = ({ row }) => {
-  return <>{row.map((cell: string | number, i: number) => (
+  return <TableRow>{row.map((cell: string | number, i: number) => (
     <TableHead key={i}>{cell}</TableHead>
-  ))}</>
+  ))}</TableRow>
 };
 
 const Page: React.FC<SheetProps> = ({ sheet, title }) => {
-  return <Card>
+  return <Card className="overflow-scroll">
     <CardHeader>
-      <CardTitle>{title}</CardTitle>
+      <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
     </CardHeader>
     <CardContent>
       <Table>
@@ -48,7 +47,7 @@ const Page: React.FC<SheetProps> = ({ sheet, title }) => {
         </TableHeader>
         <TableBody>
           {sheet.slice(1).map((row: (string | number)[], i: number) => {
-            return <Row key={`Ports-${i}`} row={row} />
+            return <Row key={i} row={row} />
           })}
         </TableBody>
 
