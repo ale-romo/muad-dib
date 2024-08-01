@@ -1,5 +1,8 @@
 
-export const data = {
+interface DataType {
+      [key: string]: (string | number)[][];
+}
+export const data:DataType = {
       Ports: [
 ["Protocol", "Port", "Application protocol", "System service name"],
 ["GRE", "n/a", "GRE (IP protocol 47)", "Routing and Remote Access"],

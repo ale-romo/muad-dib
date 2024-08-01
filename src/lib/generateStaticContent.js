@@ -44,7 +44,10 @@ const generateStaticContent = async () => {
     }).join(',\n');
 
     const jsContent = `
-export const data = {
+interface DataType {
+      [key: string]: (string | number)[][];
+}
+export const data:DataType = {
       ${worksheetsString}
   };`;
 

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), viteSingleFile()],
   resolve: {
     alias: {
-      'src': '/src',
+      src: "/src",
     },
   },
 })
