@@ -1,4 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { data } from './lib/content';
+
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "./components/ui/sheet"
+import { Button } from "./components/ui/button"
+
 import Home from './Home';
 import About from './About';
 
@@ -45,8 +54,15 @@ const App: React.FC = () => {
   return (
     <div>
       <nav>
-        <button onClick={() => navigate('home')}>Home</button>
-        <button onClick={() => navigate('about')}>About</button>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline">Open</Button>
+          </SheetTrigger>
+          <SheetContent>
+            <button onClick={() => navigate('home')}>Home</button>
+            <button onClick={() => navigate('about')}>About</button>
+          </SheetContent>
+        </Sheet>
       </nav>
       {renderView()}
     </div>

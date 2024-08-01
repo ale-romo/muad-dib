@@ -1,8 +1,7 @@
 import React from 'react';
-import {Dashboard} from './components/Dashboard'
 
 const About: React.FC = () => {
-  return <Dashboard />;
+  return <h2>About Page</h2>;
 };
 
 export default About;
