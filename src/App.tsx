@@ -55,7 +55,7 @@ useEffect(() => {
             </SheetHeader>
             <nav>
               <SheetClose asChild>
-                <Button onClick={() => navigate('home')}>Home</Button>
+                <Button onClick={() => navigate('')}>Home</Button>
               </SheetClose>
               {Object.entries(data).map(([key]) =>
                 <SheetClose key={key} asChild>
@@ -67,7 +67,7 @@ useEffect(() => {
         </Sheet>
         <main className="flex gap-5 p-5 h-full overflow-hidden">
           <nav className="hidden md:flex items-stretch flex-col gap-5">
-            <Button onClick={() => navigate('home')}>Home</Button>
+            <Button onClick={() => navigate('')}>Home</Button>
             {Object.entries(data).map(([key]) =>
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
             )}
