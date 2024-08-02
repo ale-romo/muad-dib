@@ -1,7 +1,6 @@
 import fs from 'fs/promises'; // Use promises API for async file operations
 import path from 'path';
 import * as XLSX from 'xlsx';
-import { replaceSpacesWithUnderscores } from './handleNames';
 
 // Resolve the directory of the current module
 const __dirname = new URL('.', import.meta.url).pathname;
@@ -14,6 +13,12 @@ const outputFilePath = path.join(__dirname, '/', 'content.ts');
 
 // Utility function to check if a row is empty
 const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');
+
+
+// TODO: Figure out why I can't import this function
+export const replaceSpacesWithUnderscores = (input) => {
+  return input.replace(/ /g, '_');
+}
 
 // Function to generate static content
 const generateStaticContent = async () => {

@@ -26,12 +26,12 @@ interface SheetProps {
 
 const Row: React.FC<RowProps> = ({ row }) => {
     return <TableRow>{row.map((cell: string | number, i: number) => (
-      <TableCell key={i}>{cell}</TableCell>
+      <TableCell key={i} className="align-top max-w-96">{cell}</TableCell>
     ))}</TableRow>
 };
 const HeaderRow: React.FC<RowProps> = ({ row }) => {
   return <TableRow>{row.map((cell: string | number, i: number) => (
-    <TableHead key={i}>{cell}</TableHead>
+    <TableHead key={i} className="align-top">{cell}</TableHead>
   ))}</TableRow>
 };
 
