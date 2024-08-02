@@ -17,11 +17,7 @@ import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 type View = string;
 
 const App: React.FC = () => {
-  // const [view, setView] = useState<View>(() => {
-  //   console.log(window.location.pathname)
-  //   return window.location.pathname.slice(1);
-  // });
-  const [view, setView] = useState<View>(() => window.location.hash.substring(1));
+  const [view, setView] = useState<View>(() => window.location.hash ? window.location.hash.substring(1) : '');
 
 useEffect(() => {
   const handleHash = () => {
@@ -34,35 +30,13 @@ useEffect(() => {
   return () => window.removeEventListener('hashchange', handleHash);
 }, []);
 
-  // Listen for popstate events (when the user clicks the back or forward buttons)
-  // useEffect(() => {
-  //   const handlePopState = () => {
-  //     const path = window.location.pathname;
-  //     setView(path.slice(1));
-  //   };
-
-  //   window.addEventListener('popstate', handlePopState);
-
-  //   return () => {
-  //     window.removeEventListener('popstate', handlePopState);
-  //   };
-  // }, []);
-
   const navigate = (newView: View) => {
     setView(newView);
     window.location.hash = newView;
   }
 
-  // const navigate = (newView: View) => {
-  //   setView(newView);
-  //   // Push the new URL to the history stack
-  //   const newPath = `/${newView}`;
-  //   window.history.pushState({}, '', newPath);
-  // };
-
   const renderView = () => {
-    if (view === 'home') return <Home />
-    // return <Page key={view} title={view} />
+    if (view === '') return <Home />
     return <Page key={view} title={view} sheet={data[view]} />
   };
 
