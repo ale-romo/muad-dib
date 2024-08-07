@@ -12,7 +12,7 @@ export const data:DataType = {
 ["UDP", 7, "Echo", "Simple TCP/IP Services"],
 ["TCP", 9, "Discard", "Simple TCP/IP Services"],
 ["UDP", 9, "Discard", "Simple TCP/IP Services"],
-["TCP", 13, "Daytime", "Simple TCP/IP Services"],
+["TCP/UDP", 13, "Daytime", "Simple TCP/IP Services"],
 ["UDP", 13, "Daytime", "Simple TCP/IP Services"],
 ["TCP", 17, "Quotd", "Simple TCP/IP Services"],
 ["UDP", 17, "Quotd", "Simple TCP/IP Services"],
