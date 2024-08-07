@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -93,26 +93,6 @@ const Page: React.FC<SheetProps> = ({ sheet, title }) => {
     });
     setResults([results[0], ...sortedResults]);
   };
-
-  // Extract unique values per column
-  const logUniqueValues = () => {
-    const uniqueValues: { [key: number]: Set<string | number> } = {};
-
-    results.slice(1).forEach(row => {
-      row.forEach((value, index) => {
-        if (!uniqueValues[index]) uniqueValues[index] = new Set();
-        uniqueValues[index].add(value);
-      });
-    });
-
-    Object.keys(uniqueValues).forEach(columnIndex => {
-      console.log(`Column ${parseInt(columnIndex) + 1} Unique Values:`, Array.from(uniqueValues[columnIndex]));
-    });
-  };
-
-  useEffect(() => {
-    logUniqueValues();
-  }, [results]);
 
   return <Card className="overflow-scroll">
     <CardHeader>
