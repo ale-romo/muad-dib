@@ -37,8 +37,17 @@ useEffect(() => {
 
   const renderView = () => {
     if (view === '') return <Home />
-    return <Page key={view} title={view} sheet={data[view]} />
+    return <Page key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1].slice(1))} />
   };
+
+  function convertNumbersToStrings(array: (string | number)[]) {
+    return array.map(item => {
+      if (typeof item === 'number') {
+        return item.toString();
+      }
+      return item;
+    });
+  }
 
   return (
     <div className="h-svh overflow:hidden">

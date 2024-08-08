@@ -14,6 +14,10 @@ import {
   CardTitle,
 } from "src/components/ui/card"
 import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from 'src/components/ui/toggle-group';
 import Fuse from 'fuse.js'
 
 
@@ -24,12 +28,13 @@ interface RowProps {
 interface SheetProps {
   title: string;
   sheet: (string | number)[][];
+  filters?: string[];
 }
 
 const Row: React.FC<RowProps> = ({ row }) => {
-    return <TableRow>{row.map((cell: string | number, i: number) => (
-      <TableCell key={i} className="align-top max-w-96">{cell}</TableCell>
-    ))}</TableRow>
+  return <TableRow>{row.map((cell: string | number, i: number) => (
+    <TableCell key={i} className="align-top max-w-96">{cell}</TableCell>
+  ))}</TableRow>
 };
 
 const HeaderRow: React.FC<{
@@ -53,12 +58,12 @@ const HeaderRow: React.FC<{
   );
 };
 
-const Page: React.FC<SheetProps> = ({ sheet, title }) => {
+const Page: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<(string | number)[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
+  const [activeFilter, setActiveFilter] = useState<string>('');
 
   const fuse = new Fuse(sheet.slice(1), {
     keys: Array.from({ length: sheet[0].length }, (_, i) => `${i}`),
@@ -67,19 +72,24 @@ const Page: React.FC<SheetProps> = ({ sheet, title }) => {
     useExtendedSearch: true,
   });
 
-  // Handle search input
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setQuery(query);
-    if (query) {
-      const searchResults = fuse.search(query).map(result => result.item);
-      setResults([sheet[0], ...searchResults]);
-    } else {
-      setResults(sheet);
+    let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+    if (activeFilter) {
+      searchResults = searchResults.filter(row => row.includes(activeFilter));
     }
+    setResults([sheet[0], ...searchResults]);
   };
 
-  // Sort data
+  const handleFilters = (filter: string) => {
+    const newFilter = filter === activeFilter ? '' : filter;
+    setActiveFilter(newFilter);
+    const searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+    const filteredResults = newFilter ? searchResults.filter(row => row.includes(newFilter)) : searchResults;
+    setResults([sheet[0], ...filteredResults]);
+  };
+
   const handleSort = (index: number) => {
     const direction = sortColumn === index && sortDirection === 'asc' ? 'desc' : 'asc';
     setSortColumn(index);
@@ -94,36 +104,50 @@ const Page: React.FC<SheetProps> = ({ sheet, title }) => {
     setResults([results[0], ...sortedResults]);
   };
 
-  return <Card className="overflow-scroll">
-    <CardHeader>
-      <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
-      <input
-        type="text"
-        value={query}
-        onChange={handleSearch}
-        placeholder="Search..."
-        className="mb-4 p-2 border rounded"
-      />
-    </CardHeader>
-    <CardContent>
-      <Table>
-        <TableHeader>
-          <HeaderRow
-            key={`table-header`}
-            row={results[0]}
-            onSort={handleSort}
-            sortColumn={sortColumn ?? -1}
-            sortDirection={sortDirection}
+  return (
+    <Card className="overflow-scroll">
+      <CardHeader>
+        <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
+        <input
+          type="text"
+          value={query}
+          onChange={handleSearch}
+          placeholder="Search..."
+          className="mb-4 p-2 border rounded"
+        />
+        <ToggleGroup type="single" variant="outline">
+          {filters.map(filter => (
+            <ToggleGroupItem
+              onClick={() => handleFilters(filter)}
+              key={filter}
+              value={filter}
+              aria-label={`Filter ${filter}`}
+            >
+              {filter}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <HeaderRow
+              key={`table-header`}
+              row={results[0]}
+              onSort={handleSort}
+              sortColumn={sortColumn ?? -1}
+              sortDirection={sortDirection}
             />
-        </TableHeader>
-        <TableBody>
-          {results.slice(1).map((row: (string | number)[], i: number) => {
-            return <Row key={i} row={row} />
-          })}
-        </TableBody>
+          </TableHeader>
+          <TableBody>
+            {results.slice(1).map((row: (string | number)[], i: number) => {
+              return <Row key={i} row={row} />
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
 
-      </Table>
-    </CardContent>
-  </Card>
-}
 export default Page;
