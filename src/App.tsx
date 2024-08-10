@@ -11,8 +11,11 @@ import {
 } from "src/components/ui/sheet"
 import { Button } from "src/components/ui/button"
 import Home from 'src/Home';
-import Page from './Page';
+import Page1 from './Page1';
+import Page2 from './Page2';
+import Page3 from './Page3';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
+import{ Card } from "src/components/ui/card"
 
 type View = string;
 
@@ -37,16 +40,23 @@ useEffect(() => {
 
   const renderView = () => {
     if (view === '') return <Home />
-    return <Page key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1].slice(1))} />
+    switch (data[view][0][1]) {
+      case 'A':
+        return <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1][1]).split(', ')} />
+      case 'B':
+        return <Page2 key={view} title={view} sheet={data[view].slice(1)} />
+      case 'C':
+        return <Page3 key={view} title={view} sheet={data[view].slice(1)} />
+      default:
+        <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1][1]).split(', ')} />
+    }
   };
 
-  function convertNumbersToStrings(array: (string | number)[]) {
-    return array.map(item => {
+  function convertNumbersToStrings(item: (string | number)) {
       if (typeof item === 'number') {
         return item.toString();
       }
       return item;
-    });
   }
 
   return (
@@ -81,7 +91,7 @@ useEffect(() => {
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
             )}
           </nav>
-        {renderView()}
+        <Card className="flex flex-col h-full w-full">{renderView()}</Card>
       </main>
     </div>
   );

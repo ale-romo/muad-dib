@@ -66,4 +66,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  .scrollable::-webkit-scrollbar {
+    width: 4px; /* Width of the scrollbar */
+    border-radius: 2px;
+  }
+
+  .scrollable::-webkit-scrollbar-thumb {
+    background-color: #bbb; /* Color of the scrollbar thumb */
+    border-radius: 2px;
+  }
 }

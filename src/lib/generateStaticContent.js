@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 const __dirname = new URL('.', import.meta.url).pathname;
 
 // Path to your Excel file in the /assets directory
-const excelFilePath = path.join(__dirname, '../assets', 'data.xlsx');
+const excelFilePath = path.join(__dirname, '../assets', 'muad-dib.xlsx');
 
 // Path to the output JavaScript file
 const outputFilePath = path.join(__dirname, '/', 'content.ts');
@@ -29,7 +29,7 @@ const generateStaticContent = async () => {
     const worksheets = {};
     workbook.SheetNames.forEach(sheetName => {
       const worksheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
       const filteredRows = rows.filter(row => !isEmptyRow(row));
 

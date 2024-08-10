@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "src/components/ui/table"
 import {
-  Card,
   CardContent,
   CardHeader,
   CardTitle,
@@ -58,7 +57,7 @@ const HeaderRow: React.FC<{
   );
 };
 
-const Page: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
+const Page1: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<(string | number)[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
@@ -105,7 +104,7 @@ const Page: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
   };
 
   return (
-    <Card className="overflow-scroll">
+    <>
       <CardHeader>
         <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
         <input
@@ -117,18 +116,18 @@ const Page: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
         />
         <ToggleGroup type="single" variant="outline">
           {filters.map(filter => (
-            <ToggleGroupItem
+            filter.length ? <ToggleGroupItem
               onClick={() => handleFilters(filter)}
               key={filter}
               value={filter}
               aria-label={`Filter ${filter}`}
             >
               {filter}
-            </ToggleGroupItem>
+            </ToggleGroupItem> : ''
           ))}
         </ToggleGroup>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>
           <TableHeader>
             <HeaderRow
@@ -146,8 +145,8 @@ const Page: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
           </TableBody>
         </Table>
       </CardContent>
-    </Card>
+    </>
   );
 };
 
-export default Page;
+export default Page1;
