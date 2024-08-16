@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -108,32 +108,27 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
     useExtendedSearch: true,
   });
 
-
-  // Remove duplicate logic between Search, Filter and Sort
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setQuery(query);
-    let searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1)
+  }
+
+  const handleFilters = (filter: string) => {
+    const newFilter = filter === activeFilter ? '' : filter;
+    setActiveFilter(newFilter);
+  }
+
+  useEffect(() => {
+    let searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1);
+
     if (activeFilter) {
       searchResults = searchResults.filter(row => row.includes(activeFilter));
     }
+
     setResults([sheet[0], ...searchResults]);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, activeFilter]);
 
-  const handleFilters = (filter: string) => {
-    // toggle filter value
-    const newFilter = filter === activeFilter ? '' : filter;
-    setActiveFilter(newFilter);
-
-    // if there's a query do the get results, otherwise get full data
-    const searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1);
-
-    // filter results from query with set filter
-    const filteredResults = newFilter ? searchResults.filter(row => row.includes(newFilter)) : searchResults;
-
-    //
-    setResults([sheet[0], ...filteredResults]);
-  };
 
   const handleSort = (index: number) => {
     const direction = sortColumn === index && sortDirection === 'asc' ? 'desc' : 'asc';
