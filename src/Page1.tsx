@@ -17,31 +17,60 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from 'src/components/ui/toggle-group';
-import Fuse from 'fuse.js'
+import Fuse from 'fuse.js';
+import TruncatedText from "./lib/TruncatedText";
 
+const scrollNavigate = (href: string) => {
+  const el = document.querySelector(href);
+  el?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+}
+
+const ExtractPatterns = (inputString: string) => {
+  // Define the regex pattern to match the entire string
+  const regex = /[A-Z]{1,2}-\d{1,2}\b/g;
+
+  if (regex.test(inputString)) {
+    const matches = inputString.match(regex);
+
+    if (matches) {
+      return matches.map((item, i) => {
+        return (
+          <button
+            key={`${i}-${item}`}
+            onClick={() => scrollNavigate(`#${item}`)}
+            className="mr-2 cursor:pointer underline hover:opacity-60"
+          >
+            {item.trim()}
+          </button>
+        );
+      });
+    }
+  }
+  // Return an empty array if the string does not match the pattern
+  return <TruncatedText text={inputString} />;
+}
 
 interface RowProps {
   row: (string | number)[];
 }
 
-interface SheetProps {
-  title: string;
-  sheet: (string | number)[][];
-  filters?: string[];
-}
-
 const Row: React.FC<RowProps> = ({ row }) => {
   return <TableRow>{row.map((cell: string | number, i: number) => (
-    <TableCell key={i} className="align-top max-w-96">{cell}</TableCell>
+    <TableCell key={i} className="align-top max-w-96" id={`${i === 0 ? cell : ""}`}>
+      {i === 4 ? ExtractPatterns(cell.toString()) : <TruncatedText text={cell} />}
+      {i === 4 ?<button>Filter related</button>: ""}
+      </TableCell>
   ))}</TableRow>
 };
 
-const HeaderRow: React.FC<{
+interface HeaderRowProps {
   row: (string | number)[];
   onSort: (index: number) => void;
   sortColumn: number;
   sortDirection: 'asc' | 'desc';
-}> = ({ row, onSort, sortColumn, sortDirection }) => {
+}
+
+const HeaderRow: React.FC<HeaderRowProps> = ({ row, onSort, sortColumn, sortDirection }) => {
   return (
     <TableRow>
       {row.map((cell: string | number, i: number) => (
@@ -57,12 +86,20 @@ const HeaderRow: React.FC<{
   );
 };
 
-const Page1: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
+interface PageProps {
+  title: string;
+  sheet: (string | number)[][];
+  filters?: string[];
+}
+
+const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<(string | number)[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeFilter, setActiveFilter] = useState<string>('');
+
+  // TOD: add debounce to make search more efficient
 
   const fuse = new Fuse(sheet.slice(1), {
     keys: Array.from({ length: sheet[0].length }, (_, i) => `${i}`),
@@ -71,10 +108,12 @@ const Page1: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
     useExtendedSearch: true,
   });
 
+
+  // Remove duplicate logic between Search, Filter and Sort
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setQuery(query);
-    let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+    let searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1)
     if (activeFilter) {
       searchResults = searchResults.filter(row => row.includes(activeFilter));
     }
@@ -82,10 +121,17 @@ const Page1: React.FC<SheetProps> = ({ sheet, title, filters = [] }) => {
   };
 
   const handleFilters = (filter: string) => {
+    // toggle filter value
     const newFilter = filter === activeFilter ? '' : filter;
     setActiveFilter(newFilter);
-    const searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+
+    // if there's a query do the get results, otherwise get full data
+    const searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1);
+
+    // filter results from query with set filter
     const filteredResults = newFilter ? searchResults.filter(row => row.includes(newFilter)) : searchResults;
+
+    //
     setResults([sheet[0], ...filteredResults]);
   };
 

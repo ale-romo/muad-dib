@@ -42,11 +42,24 @@ useEffect(() => {
     if (view === '') return <Home />
     switch (data[view][0][1]) {
       case 'A':
-        return <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1][1]).split(', ')} />
+        return <Page1
+          key={view}
+          title={view}
+          sheet={(data[view].slice(2))}
+          filters={convertNumbersToStrings(data[view][1][1]).split(', ')}
+        />
       case 'B':
-        return <Page2 key={view} title={view} sheet={data[view].slice(1)} />
+        return <Page2
+          key={view}
+          title={view}
+          sheet={data[view].slice(1)}
+        />
       case 'C':
-        return <Page3 key={view} title={view} sheet={data[view].slice(1)} />
+        return <Page3
+          key={view}
+          title={view}
+          sheet={data[view].slice(1)}
+        />
       default:
         <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1][1]).split(', ')} />
     }

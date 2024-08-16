@@ -49,7 +49,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title }) => {
     <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent className="flex gap-10 max-h-full">
+      <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>
           <TableBody>
           {sheet.map((item, i:number) => (
