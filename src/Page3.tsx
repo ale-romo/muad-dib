@@ -15,6 +15,8 @@ interface SheetProps {
   sheet: (string | number)[][];
 }
 
+import { marked } from 'marked';
+
 // Reorganize nested data
 
 function countEmptySpacesBelow(matrix: (string | number)[][], row: number, col: number): number {
@@ -55,7 +57,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title }) => {
           {sheet.map((item, i:number) => (
             <TableRow key={`row-${i}`}>
               {item.map((cell, j:number) => {
-                return cell !== '' ? <TableCell key={`cell-${i}-${j}`} className="align-top" rowSpan={countEmptySpacesBelow(sheet, i, j)}>{cell}</TableCell> : '';
+                return cell !== '' ? <TableCell key={`cell-${i}-${j}`} className="align-top" rowSpan={countEmptySpacesBelow(sheet, i, j)} dangerouslySetInnerHTML={{__html:marked(cell.toString()) }} /> : '';
 
               })}
             </TableRow>)

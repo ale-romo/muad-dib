@@ -19,6 +19,7 @@ import {
 } from 'src/components/ui/toggle-group';
 import Fuse from 'fuse.js';
 import TruncatedText from "./lib/TruncatedText";
+import { Toggle } from "./components/ui/toggle";
 
 
 const scrollToSelectedIdentifier = (href: string) => {
@@ -31,7 +32,6 @@ const generateArrayOfIdentifiers = (identifiers: string): string[] => {
   const resultsArray = identifiers.match(regex);
   return resultsArray ?? [''];
 }
-
 
 const GenerateIdentifierLinks = (inputString: string) => {
   // Define the regex pattern to match the entire string
@@ -91,7 +91,10 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   }
 
   const handleArrayFilter = (filter: string[]) => {
-    const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? [] : filter;
+    console.log(JSON.stringify(filter) )
+    console.log(JSON.stringify(activeFilter))
+    const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? '' : filter;
+    console.log(newFilter)
     setActiveFilter(newFilter);
   }
 
@@ -166,12 +169,24 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
           </TableHeader>
           <TableBody>
             {results.slice(1).map((row: (string | number)[], i: number) => {
-              return <TableRow key={i}>{row.map((cell: string | number, i: number) => (
-                  <TableCell key={i} className="align-top max-w-96" id={`${i === 0 ? cell : ""}`}>
-                    {i === 4 ? GenerateIdentifierLinks(cell.toString()) : <TruncatedText text={cell} />}
-                    {i === 4 ?<button onClick={() => handleArrayFilter(generateArrayOfIdentifiers(cell.toString()))}>Filter related</button>: ""}
-                    </TableCell>
-                ))}</TableRow>
+              let rowId = "";
+              let filters = [''];
+              return <TableRow key={i}>{row.map((cell: string | number, j: number) => {
+                if (j === 0) {
+                  rowId = cell.toString();
+                }
+                if (j === 4) {
+                  filters = generateArrayOfIdentifiers(`${rowId}, ${cell.toString()}`);
+                }
+                return <TableCell
+                  key={j}
+                  className="align-top max-w-96"
+                  id={`${j === 0 ? cell : ""}`}
+                >
+                  {j === 4 ? GenerateIdentifierLinks(cell.toString()) : <TruncatedText text={cell} />}
+                  {j === 4 && filters.length > 1 ? <Toggle className="block" onClick={() => handleArrayFilter(filters)}>Filter related</Toggle> : ""}
+                  </TableCell>
+                })}</TableRow>
               })}
           </TableBody>
         </Table>
