@@ -139,7 +139,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
           placeholder="Search..."
           className="mb-4 p-2 border rounded"
         />
-        <ToggleGroup type="single" variant="outline">
+        {filters.length && <ToggleGroup type="single" variant="outline">
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem
               onClick={() => handleStringFilter(filter)}
@@ -150,7 +150,14 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
               {filter}
             </ToggleGroupItem> : ''
           ))}
-        </ToggleGroup>
+          <ToggleGroupItem
+            onClick={() => handleStringFilter('')}
+            value=""
+            aria-label="Clear all filters"
+          >
+            Clear all filters
+          </ToggleGroupItem>
+        </ToggleGroup>}
       </CardHeader>
       <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>

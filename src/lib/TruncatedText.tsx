@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { marked } from 'marked';
 
 interface TruncatedTextProps {
   text: string | number;
@@ -14,13 +15,14 @@ const TruncatedText: React.FC<TruncatedTextProps> = ({ text, maxLength = 100 }) 
   };
 
   // Check if the text is a string and truncate if necessary
-  const isString = typeof text === 'string';
-  const truncatedText = isString ? truncateText(text, maxLength) : text;
+  const stringedText = typeof text === 'string' ? text : text.toString() ;
+  const truncatedText = truncateText(stringedText, maxLength);
 
   return (
-    <div onClick={toggleText} style={{ cursor: 'pointer' }}>
-      {isString ? (isExpanded ? text : truncatedText) : text}
-    </div>
+    <div
+      onClick={toggleText} style={{ cursor: 'pointer' }}
+      dangerouslySetInnerHTML={{__html:marked(isExpanded ? stringedText : truncatedText, {breaks: true}) }}
+    />
   );
 };
 

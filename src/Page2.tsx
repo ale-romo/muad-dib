@@ -40,12 +40,14 @@ const Page2: React.FC<SheetProps> = ({ sheet, title }) => {
           />
           <ul className="flex flex-col gap-5 max-h-full overflow-y-scroll">
             {filteredItems.map((record, i) => (
-              <li
-                onClick={() => setCurrentItem(sheet.indexOf(record))}
-                key={`menu-${i}`}
-                className={`${currentItem === sheet.indexOf(record) ? 'font-bold' : ''}`}
-              >
-                {record[0]}
+              <li>
+                <button
+                  onClick={() => setCurrentItem(sheet.indexOf(record))}
+                  key={`menu-${i}`}
+                  className={`${currentItem === sheet.indexOf(record) ? 'font-bold' : ''} text-left`}
+                >
+                  {record[0]}
+                </button>
               </li>
             ))}
           </ul>
