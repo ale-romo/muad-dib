@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { marked } from 'marked';
 
-interface TruncatedTextProps {
-  text: string | number;
+interface CollapsibleMDTextProps {
+  text: string;
   maxLength?: number;
 }
 
-const TruncatedText: React.FC<TruncatedTextProps> = ({ text, maxLength = 100 }) => {
+const CollapsibleMDText: React.FC<CollapsibleMDTextProps> = ({ text, maxLength = 100 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Toggle text expansion
@@ -15,13 +15,13 @@ const TruncatedText: React.FC<TruncatedTextProps> = ({ text, maxLength = 100 }) 
   };
 
   // Check if the text is a string and truncate if necessary
-  const stringedText = typeof text === 'string' ? text : text.toString() ;
-  const truncatedText = truncateText(stringedText, maxLength);
+  const stringedText = typeof text === 'string' ? text : text ;
+  const collapsedText = truncateText(stringedText, maxLength);
 
   return (
     <div
       onClick={toggleText} style={{ cursor: 'pointer' }}
-      dangerouslySetInnerHTML={{__html:marked(isExpanded ? stringedText : truncatedText, {breaks: true}) }}
+      dangerouslySetInnerHTML={{__html:marked(isExpanded ? stringedText : collapsedText, {breaks: true}) }}
     />
   );
 };
@@ -46,4 +46,4 @@ const truncateText = (text: string, maxLength: number): string => {
   return truncated;
 };
 
-export default TruncatedText;
+export default CollapsibleMDText;

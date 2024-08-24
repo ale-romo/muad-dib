@@ -18,7 +18,7 @@ import {
   ToggleGroupItem,
 } from 'src/components/ui/toggle-group';
 import Fuse from 'fuse.js';
-import TruncatedText from "./lib/TruncatedText";
+import CollapsibleMDText from "./lib/CollapsibleMDText";
 import { Toggle } from "./components/ui/toggle";
 
 
@@ -55,18 +55,18 @@ const GenerateIdentifierLinks = (inputString: string) => {
     }
   }
   // Return an empty array if the string does not match the pattern
-  return <TruncatedText text={inputString} />;
+  return <CollapsibleMDText text={inputString} />;
 }
 
 interface PageProps {
   title: string;
-  sheet: (string | number)[][];
+  sheet: string[][];
   filters?: string[];
 }
 
 const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   const [query, setQuery] = useState<string>('');
-  const [results, setResults] = useState<(string | number)[][]>(sheet);
+  const [results, setResults] = useState<string[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeFilter, setActiveFilter] = useState<string | string[]>('');
@@ -139,7 +139,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
           placeholder="Search..."
           className="mb-4 p-2 border rounded"
         />
-        {filters.length && <ToggleGroup type="single" variant="outline">
+        {filters.length ? <ToggleGroup type="single" variant="outline">
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem
               onClick={() => handleStringFilter(filter)}
@@ -157,13 +157,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
           >
             Clear all filters
           </ToggleGroupItem>
-        </ToggleGroup>}
+        </ToggleGroup> : ''}
       </CardHeader>
       <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              {results[0].map((cell: string | number, i: number) => (
+              {results[0].map((cell: string, i: number) => (
                 <TableHead
                   key={i}
                   className="align-top cursor-pointer"
@@ -175,22 +175,22 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.slice(1).map((row: (string | number)[], i: number) => {
+            {results.slice(1).map((row: string[], i: number) => {
               let rowId = "";
               let filters = [''];
-              return <TableRow key={i}>{row.map((cell: string | number, j: number) => {
+              return <TableRow key={i}>{row.map((cell: string, j: number) => {
                 if (j === 0) {
-                  rowId = cell.toString();
+                  rowId = cell;
                 }
                 if (j === 4) {
-                  filters = generateArrayOfIdentifiers(`${rowId}, ${cell.toString()}`);
+                  filters = generateArrayOfIdentifiers(`${rowId}, ${cell}`);
                 }
                 return <TableCell
                   key={j}
                   className="align-top max-w-96"
                   id={`${j === 0 ? cell : ""}`}
                 >
-                  {j === 4 ? GenerateIdentifierLinks(cell.toString()) : <TruncatedText text={cell} />}
+                  {j === 4 ? GenerateIdentifierLinks(cell) : <CollapsibleMDText text={cell} />}
                   {j === 4 && filters.length > 1 ? <Toggle className="block" onClick={() => handleArrayFilter(filters)}>Filter related</Toggle> : ""}
                   </TableCell>
                 })}</TableRow>

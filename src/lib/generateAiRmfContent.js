@@ -6,10 +6,10 @@ import * as XLSX from 'xlsx';
 const __dirname = new URL('.', import.meta.url).pathname;
 
 // Path to your Excel file in the /assets directory
-const excelFilePath = path.join(__dirname, '../assets', 'muad-dib.xlsx');
+const excelFilePath = path.join(__dirname, '../assets', 'muad-dib-ai.xlsx');
 
 // Path to the output JavaScript file
-const outputFilePath = path.join(__dirname, '/', 'content.ts');
+const outputFilePath = path.join(__dirname, '/', 'ai-rmf-content.ts');
 
 // Utility function to check if a row is empty
 const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');
@@ -37,16 +37,15 @@ const generateStaticContent = async () => {
     });
 
     const worksheetsString = Object.entries(worksheets).map(([sheetName, rows]) => {
-      const rowsString = rows.map(row =>
-        Array.isArray(row)
-          ? `[${row.map(value => {
+      //
+      const rowsString = rows.map(row => {
+          return `[${row.map(value => {
             let stringVal = value;
             if (typeof value !== 'string') {
               stringVal = value.toString();
             }
             return JSON.stringify(stringVal)}
-          ).join(', ')}]`
-          : JSON.stringify(row)
+          ).join(', ')}]`}
       ).join(',\n');
 
       return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;

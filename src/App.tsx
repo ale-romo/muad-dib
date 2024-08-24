@@ -14,6 +14,7 @@ import Home from 'src/Home';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
+import Page4 from './Page4';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
@@ -40,38 +41,39 @@ useEffect(() => {
 
   const renderView = () => {
     if (view === '') return <Home />
+    if (view === 'AI RRF') return <Page4 />
     switch (data[view][0][1]) {
       case 'A':
+        // SP 800 53 (Consider breaking out own template)
+        // Ports
+        // ACAS Plugins
+        // Event Codes
+        // Keyboard Shortcuts
+
         return <Page1
           key={view}
           title={view}
           sheet={(data[view].slice(2))}
-          filters={convertNumbersToStrings(data[view][1][1]).split(', ')}
+          filters={data[view][1][1].length > 0 ? data[view][1][1].split(', ') : []}
         />
       case 'B':
+        // Splunk Queries
         return <Page2
           key={view}
           title={view}
           sheet={data[view].slice(1)}
         />
       case 'C':
+        // NIST-AI-800-218A
         return <Page3
           key={view}
           title={view}
           sheet={data[view].slice(1)}
         />
       default:
-        <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={convertNumbersToStrings(data[view][1][1]).split(', ')} />
+        <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={data[view][1][1].split(', ')} />
     }
   };
-
-  function convertNumbersToStrings(item: (string | number)) {
-      if (typeof item === 'number') {
-        return item.toString();
-      }
-      return item;
-  }
-
   return (
     <div className="h-svh overflow:hidden">
         <Sheet>

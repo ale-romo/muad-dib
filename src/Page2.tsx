@@ -7,7 +7,7 @@ import {
 } from "src/components/ui/card";
 
 interface SheetProps {
-  sheet: (string | number)[][];
+  sheet: string[][];
   title: string;
 }
 
