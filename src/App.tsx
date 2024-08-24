@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { data } from 'src/lib/content';
+import { aiRmfData } from 'src/lib/ai-rmf-content';
 import {
   Sheet,
   SheetTitle,
@@ -41,7 +42,7 @@ useEffect(() => {
 
   const renderView = () => {
     if (view === '') return <Home />
-    if (view === 'AI RRF') return <Page4 />
+    if (view === 'AI_RMF') return <Page4 {...aiRmfData} />
     switch (data[view][0][1]) {
       case 'A':
         // SP 800 53 (Consider breaking out own template)

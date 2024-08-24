@@ -92,7 +92,7 @@ interface AiRmfProps {
     steps: string[][];
   }[];
 }
-export const data:AiRmfProps = {
+export const aiRmfData:AiRmfProps = {
       ${worksheetsString}
   };`;
 
