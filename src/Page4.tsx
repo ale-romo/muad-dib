@@ -1,28 +1,13 @@
-interface AiRmfActivitySectionStepProps {
-  category: string;
-  subcategory: string;
-  title: string;
-  description: string;
-  SuggestedActions: string;
-  TransparencyAndDocumentation: string;
-  References: string;
 
-}
-
-interface AiRmfActivitySectionProps {
-  title: string;
-  steps: AiRmfActivitySectionStepProps[];
-}
-
-interface AiRmfActivityProps {
-  section: AiRmfActivitySectionProps[];
-}
 
 interface AiRmfProps {
-  activities: AiRmfActivityProps[];
+  [key: string]: {
+    title: string;
+    steps: string[][];
+  }[];
 }
 
-const Page4: React.FC<AiRmfProps> = ({ activities }) => {
+const Page4: React.FC<AiRmfProps> = (props) => {
 
   return <></>
 }

@@ -11,9 +11,6 @@ const excelFilePath = path.join(__dirname, '../assets', 'muad-dib-ai.xlsx');
 // Path to the output JavaScript file
 const outputFilePath = path.join(__dirname, '/', 'ai-rmf-content.ts');
 
-// Utility function to check if a row is empty
-const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');
-
 
 // TODO: Figure out why I can't import this function
 export const replaceSpacesWithUnderscores = (input) => {
@@ -27,34 +24,75 @@ const generateStaticContent = async () => {
     const fileBuffer = await fs.readFile(excelFilePath);
     const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
     const worksheets = {};
+
     workbook.SheetNames.forEach(sheetName => {
       const worksheet = workbook.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-      const filteredRows = rows.filter(row => !isEmptyRow(row));
+      const structuredData = {};
+      let currentSection = null;
 
-      worksheets[sheetName] = filteredRows;
+      rows.forEach(row => {
+
+        if (row.every(cell => !cell)) {
+          return;
+        }
+
+        const [firstCell, ...restCells] = row;
+
+        if (firstCell) {
+          // New section starts
+          if (currentSection) {
+            if (!structuredData[sheetName]) {
+              structuredData[sheetName] = [];
+            }
+            structuredData[sheetName].push(currentSection);
+          }
+          currentSection = {
+            title: firstCell.toString(),
+            steps: [restCells.map(cell => cell?.toString() || '')],
+          };
+        } else if (currentSection) {
+          // Append to the current section
+          currentSection.steps.push(restCells.map(cell => cell?.toString() || ''));
+        }
+      });
+
+      // Push the last section if it exists
+      if (currentSection) {
+        if (!structuredData[sheetName]) {
+          structuredData[sheetName] = [];
+        }
+        structuredData[sheetName].push(currentSection);
+      }
+
+      worksheets[sheetName] = structuredData[sheetName] || [];
+
+      // const filteredRows = rows.filter(row => !isEmptyRow(row));
+
+      // worksheets[sheetName] = filteredRows;
     });
 
-    const worksheetsString = Object.entries(worksheets).map(([sheetName, rows]) => {
-      //
-      const rowsString = rows.map(row => {
-          return `[${row.map(value => {
-            let stringVal = value;
-            if (typeof value !== 'string') {
-              stringVal = value.toString();
-            }
-            return JSON.stringify(stringVal)}
-          ).join(', ')}]`}
-      ).join(',\n');
+    const worksheetsString = Object.entries(worksheets).map(([sheetName, sections]) => {
+      const sectionsString = sections.map(section => {
+        const stepsString = section.steps.map(step =>
+          `[${step.map(value => JSON.stringify(value)).join(', ')}]`
+        ).join(',\n');
 
-      return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;
+        return `{\n  title: "${section.title}",\n  steps: [\n${stepsString}\n  ]\n}`;
+      }).join(',\n');
+
+      return `${replaceSpacesWithUnderscores(sheetName)}: [\n${sectionsString}\n]`;
     }).join(',\n');
+
     const jsContent = `
-interface DataType {
-      [key: string]: string[][];
+interface AiRmfProps {
+  [key: string]: {
+    title: string;
+    steps: string[][];
+  }[];
 }
-export const data:DataType = {
+export const data:AiRmfProps = {
       ${worksheetsString}
   };`;
 
