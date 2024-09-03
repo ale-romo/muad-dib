@@ -16,6 +16,7 @@ import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
 import Page4 from './Page4';
+import Page5 from './Page5';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
@@ -43,6 +44,7 @@ useEffect(() => {
   const renderView = () => {
     if (view === '') return <Home />
     if (view === 'AI_RMF') return <Page4 {...aiRmfData} />
+    if (view === 'AI_RMF_2') return <Page5 {...aiRmfData} />
     switch (data[view][0][1]) {
       case 'A':
         // SP 800 53 (Consider breaking out own template)

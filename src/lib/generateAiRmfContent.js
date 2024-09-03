@@ -11,7 +11,6 @@ const excelFilePath = path.join(__dirname, '../assets', 'muad-dib-ai.xlsx');
 // Path to the output JavaScript file
 const outputFilePath = path.join(__dirname, '/', 'ai-rmf-content.ts');
 
-
 // TODO: Figure out why I can't import this function
 export const replaceSpacesWithUnderscores = (input) => {
   return input.replace(/ /g, '_');
@@ -38,7 +37,7 @@ const generateStaticContent = async () => {
           return;
         }
 
-        const [firstCell, ...restCells] = row;
+        const [firstCell, secondCell, ...restCells] = row;
 
         if (firstCell) {
           // New section starts
@@ -50,6 +49,7 @@ const generateStaticContent = async () => {
           }
           currentSection = {
             title: firstCell.toString(),
+            description: secondCell ? secondCell.toString() : '',
             steps: [restCells.map(cell => cell?.toString() || '')],
           };
         } else if (currentSection) {
@@ -67,33 +67,30 @@ const generateStaticContent = async () => {
       }
 
       worksheets[sheetName] = structuredData[sheetName] || [];
-
-      // const filteredRows = rows.filter(row => !isEmptyRow(row));
-
-      // worksheets[sheetName] = filteredRows;
     });
 
     const worksheetsString = Object.entries(worksheets).map(([sheetName, sections]) => {
       const sectionsString = sections.map(section => {
         const stepsString = section.steps.map(step =>
-          `[${step.map(value => JSON.stringify(value)).join(', ')}]`
+          `      [${step.map(value => JSON.stringify(value)).join(', ')}]`
         ).join(',\n');
 
-        return `{\n  title: "${section.title}",\n  steps: [\n${stepsString}\n  ]\n}`;
+        return `    {\n      title: "${section.title}",\n      description: "${section.description}",\n      steps: [\n${stepsString}\n      ]\n    }`;
       }).join(',\n');
 
-      return `${replaceSpacesWithUnderscores(sheetName)}: [\n${sectionsString}\n]`;
+      return `${replaceSpacesWithUnderscores(sheetName)}: [\n${sectionsString}\n  ]`;
     }).join(',\n');
 
     const jsContent = `
-interface AiRmfProps {
+export interface AiRmfProps {
   [key: string]: {
     title: string;
+    description: string;
     steps: string[][];
   }[];
 }
 export const aiRmfData:AiRmfProps = {
-      ${worksheetsString}
+    ${worksheetsString}
   };`;
 
     // Save the JavaScript file
