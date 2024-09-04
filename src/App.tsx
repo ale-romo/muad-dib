@@ -43,8 +43,7 @@ useEffect(() => {
 
   const renderView = () => {
     if (view === '') return <Home />
-    if (view === 'AI_RMF') return <Page4 {...aiRmfData} />
-    if (view === 'AI_RMF_2') return <Page5 {...aiRmfData} />
+    if (view === 'AI_RMF') return <Page5 {...aiRmfData} />
     switch (data[view][0][1]) {
       case 'A':
         // SP 800 53 (Consider breaking out own template)
@@ -108,6 +107,7 @@ useEffect(() => {
             {Object.entries(data).map(([key]) =>
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
             )}
+            <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
           </nav>
         <Card className="flex flex-col h-full w-full">{renderView()}</Card>
       </main>
