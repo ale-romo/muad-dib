@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Button } from "src/components/ui/button"
 import {
   Tabs,
@@ -53,19 +53,18 @@ const Page5: React.FC<AiRmfProps> = (props) => {
                   key={`overview-${i}`}
                   defaultValue={['overview-steps-0-0']}
                 >
-                  <SectionTitle>{section.title}: {section.description}</SectionTitle>
+                  <SectionTitle>{section.title}:<br /> <span className="text-base text-">{section.description}</span></SectionTitle>
                   {section.steps.map((step, j) => (
                     <AccordionItem value={`overview-steps-${i}-${j}`} key={`overview-steps-${j}`} className="[&:nth-child(odd)]:bg-gray-100/50 p-5">
                       <AccordionTrigger className="text-left">
                         <div>
-                          <MdText className="text-xs text-gray-500">{`${step[0]}`}</MdText>
-                          <MdText className="text-xs font-bold mb-2 text-gray-500">{`${step[1]}`}</MdText>
                           <MdText className="text-sm font-bold mb-2">{`${step[2]}`}</MdText>
+
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="flex gap-10">
                         <div className="">
-                        {currentSteps.map(currentStep => <MdText key={`step-${currentStep}`}>{step[currentStep]}</MdText>)}
+                        {currentSteps.map(currentStep => <><MdText className="text-xs mb-2 text-gray-500">{`${step[0]} | ${step[1]}`}</MdText><MdText key={`step-${currentStep}`}>{step[currentStep]}</MdText></>)}
                         </div>
                       </AccordionContent>
                     </AccordionItem>

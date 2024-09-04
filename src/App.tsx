@@ -15,7 +15,6 @@ import Home from 'src/Home';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
-import Page4 from './Page4';
 import Page5 from './Page5';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"

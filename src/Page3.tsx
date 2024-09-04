@@ -30,7 +30,7 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
   }
 
   // Initialize the count of empty spaces
-  let count = 0;
+  let count = 1;
 
   // Start from the cell below the specified cell
   let currentRow = row + 1;
@@ -45,7 +45,7 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
     currentRow++;
   }
 
-  return count + 1;
+  return count;
 }
 
 
@@ -82,11 +82,11 @@ const Page3: React.FC<SheetProps> = ({ sheet, title }) => {
               {row.map((cell, j:number) => {
                 let styledCell = cell.replace(/\bsticky\b\s*/g, '');
                 if (cell === 'x') styledCell = '';
-                return cell !== '' ? <TableCell
+                return <TableCell
                   key={`cell-${i}-${j}`}
                   className="align-top"
-                  rowSpan={countEmptySpacesBelow(sheet, i, j)}
-                  ><CollapsibleMDText text={styledCell} /></TableCell> : '';
+                  rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+                  ><CollapsibleMDText text={styledCell} /></TableCell>;
 
               })}
             </TableRow>)
