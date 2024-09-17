@@ -26,7 +26,7 @@ const Page5: React.FC<AiRmfProps> = (props) => {
   const [currentSteps, setCurrentSteps] = useState<number[]>([3]);
 
   return <Tabs defaultValue={Object.keys(props)[0]} className="h-full grid grid-rows-[auto,1fr]">
-    <TabsList className="grid grid-cols-2 m-5">
+    <TabsList className="grid grid-cols-4 m-5">
       {Object.entries(props).map(([key]) => (
         <TabsTrigger key={`menu-${key}`} value={key}>{key}</TabsTrigger>
       ))}
@@ -55,7 +55,7 @@ const Page5: React.FC<AiRmfProps> = (props) => {
                 >
                   <SectionTitle>{section.title}:<br /> <span className="text-base text-">{section.description}</span></SectionTitle>
                   {section.steps.map((step, j) => (
-                    <AccordionItem value={`overview-steps-${i}-${j}`} key={`overview-steps-${j}`} className="[&:nth-child(odd)]:bg-gray-100/50 p-5">
+                    <AccordionItem value={`overview-steps-${i}-${j}`} key={`overview-steps-${i}-${j}`} className="[&:nth-child(odd)]:bg-gray-100/50 p-5">
                       <AccordionTrigger className="text-left">
                         <div>
                           <MdText className="text-sm font-bold mb-2">{`${step[2]}`}</MdText>
@@ -64,7 +64,7 @@ const Page5: React.FC<AiRmfProps> = (props) => {
                       </AccordionTrigger>
                       <AccordionContent className="flex gap-10">
                         <div className="">
-                        {currentSteps.map(currentStep => <><MdText className="text-xs mb-2 text-gray-500">{`${step[0]} | ${step[1]}`}</MdText><MdText key={`step-${currentStep}`}>{step[currentStep]}</MdText></>)}
+                        {currentSteps.map(currentStep => <div key={`step-${currentStep}`}><MdText className="text-xs mb-2 text-gray-500">{`${step[0]} | ${step[1]}`}</MdText><MdText>{step[currentStep]}</MdText></div>)}
                         </div>
                       </AccordionContent>
                     </AccordionItem>

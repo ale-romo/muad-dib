@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { data } from 'src/lib/content';
-import { aiRmfData } from 'src/lib/ai-rmf-content';
+import { aiRmfData, AiRmfProps } from 'src/lib/ai-rmf-content';
 import {
   Sheet,
   SheetTitle,
@@ -40,6 +40,24 @@ useEffect(() => {
     window.location.hash = newView;
   }
 
+  function reduceAiRmfProps(data: AiRmfProps): string[][] {
+    const result: string[][] = [];
+
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        data[key].forEach(section => {
+          section.steps.forEach(step => {
+            const title = step[2].toLowerCase().match(/^[a-z]+[-\s]\d+\.\d+/)?.[0].replace(/[-\s]+/g, '_').replace('.', '_') || '';
+            const description = step[4];
+            result.push([title, description]);
+          });
+        });
+      }
+    }
+
+    return result;
+  }
+
   const renderView = () => {
     if (view === '') return <Home />
     if (view === 'AI_RMF') return <Page5 {...aiRmfData} />
@@ -70,6 +88,7 @@ useEffect(() => {
           key={view}
           title={view}
           sheet={data[view].slice(1)}
+          references={reduceAiRmfProps(aiRmfData)}
         />
       default:
         <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={data[view][1][1].split(', ')} />

@@ -14,15 +14,16 @@ import {
   TableCell,
   TableRow,
 } from "src/components/ui/table"
+import { Button } from "./components/ui/button";
 interface SheetProps {
   title: string;
   sheet: string[][];
+  references: string[][];
 }
 import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
 import CollapsibleMDText from "./lib/CollapsibleMDText";
 
 // Reorganize nested data
-
 function countEmptySpacesBelow(matrix: string[][], row: number, col: number): number {
   // Check if the initial cell is within bounds
   if (row < 0 || col < 0 || row >= matrix.length || col >= matrix[0].length) {
@@ -48,15 +49,82 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
   return count;
 }
 
+// Function to parse and render
+const parseAndRender = (str: string): (string | JSX.Element)[] => {
+  const result: (string | JSX.Element)[] = [];
+
+  // Define subcategories and regex patterns
+  const aiRmfSubcategories = ['Govern', 'Measure', 'Manage', 'Map'];
+  const owaspPattern = /OWASP:\s([A-Za-z0-9-]+)/g;
+  let hasAiRmf = false;
+
+  // Iterate over AI RMF subcategories
+  aiRmfSubcategories.forEach((subcategory) => {
+    const regex = new RegExp(`${subcategory}\\s([\\d.,\\s]+)`, 'g');
+    const match = regex.exec(str);
+
+    if (match) {
+      const numbers = match[1].split(',').map(num => num.trim());
+      if (numbers.length > 0) {
+        // Add "AI RMF" if there is at least one subcategory with data
+        if (!hasAiRmf) {
+          result.push('AI RMF: ');
+          hasAiRmf = true;
+        }
+
+        // Add the subcategory name (without wrapping it in <h4> or other elements)
+        result.push(`${subcategory} `);
+
+        // Generate buttons for each number
+        numbers.forEach((number) => {
+          result.push(
+            <button
+              className="underline"
+              key={`${subcategory}_${number}`}
+              onClick={() => console.log(`${subcategory.toLowerCase()}_${number.replace('.', '_')}`)}
+            >
+              {number}
+            </button>
+          );
+          result.push(' '); // Add space between buttons
+        });
+      }
+    }
+  });
+
+  // OWASP section
+  const owaspMatches = [...str.matchAll(owaspPattern)];
+  if (owaspMatches.length > 0) {
+    result.push('OWASP: ');
+    owaspMatches.forEach((match) => {
+      const identifier = match[1];
+      result.push(
+        <button
+          className="underline"
+          key={`owasp_${identifier}`}
+          onClick={() => console.log(`owasp_${identifier.replace('-', '_')}`)}
+        >
+          {identifier}
+        </button>
+      );
+      result.push(' '); // Add space between buttons
+    });
+  }
+
+  return result;
+};
 
 
-const Page3: React.FC<SheetProps> = ({ sheet, title }) => {
+const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   const tableHeaderRef = useRef<HTMLTableSectionElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
 
   useEffect(() => {
     if (tableHeaderRef?.current?.clientHeight) setHeaderHeight(tableHeaderRef.current.clientHeight)
   }, []);
+
+
+
 
   return <>
     <CardHeader>
@@ -81,6 +149,11 @@ const Page3: React.FC<SheetProps> = ({ sheet, title }) => {
             <TableRow key={`row-${i}`} className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''}`} style={{ top: headerHeight - 2}}>
               {row.map((cell, j:number) => {
                 let styledCell = cell.replace(/\bsticky\b\s*/g, '');
+                if (j === 4) return <TableCell
+                key={`cell-${i}-${j}`}
+                className="align-top gap-2"
+                rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+                >{parseAndRender(cell)}</TableCell>;
                 if (cell === 'x') styledCell = '';
                 return <TableCell
                   key={`cell-${i}-${j}`}
