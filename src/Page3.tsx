@@ -14,14 +14,22 @@ import {
   TableCell,
   TableRow,
 } from "src/components/ui/table"
-import { Button } from "./components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "src/components/ui/dialog";
+
 interface SheetProps {
   title: string;
   sheet: string[][];
-  references: string[][];
+  references: Map<string, string>;
 }
 import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
 import CollapsibleMDText from "./lib/CollapsibleMDText";
+import MdText from "./lib/MdText";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 // Reorganize nested data
 function countEmptySpacesBelow(matrix: string[][], row: number, col: number): number {
@@ -50,8 +58,13 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
 }
 
 // Function to parse and render
-const parseAndRender = (str: string): (string | JSX.Element)[] => {
+const parseAndRender = (str: string, setContent: any, setDialog: any) => {
   const result: (string | JSX.Element)[] = [];
+
+  const openDialog = (identifier: string) => {
+    setContent(identifier);
+    setDialog(true);
+  }
 
   // Define subcategories and regex patterns
   const aiRmfSubcategories = ['Govern', 'Measure', 'Manage', 'Map'];
@@ -81,7 +94,7 @@ const parseAndRender = (str: string): (string | JSX.Element)[] => {
             <button
               className="underline"
               key={`${subcategory}_${number}`}
-              onClick={() => console.log(`${subcategory.toLowerCase()}_${number.replace('.', '_')}`)}
+              onClick={() => openDialog(`${subcategory.toLowerCase()}_${number.replace('.', '_')}`)}
             >
               {number}
             </button>
@@ -101,8 +114,9 @@ const parseAndRender = (str: string): (string | JSX.Element)[] => {
       result.push(
         <button
           className="underline"
-          key={`owasp_${identifier}`}
-          onClick={() => console.log(`owasp_${identifier.replace('-', '_')}`)}
+          key={`${identifier}`}
+          // onClick={() => console.log(`owasp_${identifier.replace('-', '_')}`)}
+          onClick={() => openDialog(`${identifier.replace('-', '_')}`)}
         >
           {identifier}
         </button>
@@ -114,17 +128,25 @@ const parseAndRender = (str: string): (string | JSX.Element)[] => {
   return result;
 };
 
+const formatPattern = (pattern: string): string => {
+  const [prefix, ...numbers] = pattern.split('_');
+  return `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${numbers.join('.')}`;
+};
+
 
 const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   const tableHeaderRef = useRef<HTMLTableSectionElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [dialogContent, setDialogContent] = useState<string>('');
+  const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
+
+  const closeDialog = () => {
+    setDialogIsOpen(false);
+  };
 
   useEffect(() => {
     if (tableHeaderRef?.current?.clientHeight) setHeaderHeight(tableHeaderRef.current.clientHeight)
   }, []);
-
-
-
 
   return <>
     <CardHeader>
@@ -153,7 +175,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
                 key={`cell-${i}-${j}`}
                 className="align-top gap-2"
                 rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
-                >{parseAndRender(cell)}</TableCell>;
+                >{parseAndRender(cell, setDialogContent, setDialogIsOpen)}</TableCell>;
                 if (cell === 'x') styledCell = '';
                 return <TableCell
                   key={`cell-${i}-${j}`}
@@ -167,6 +189,16 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
           </TableBody>
         </Table>
       </CardContent>
+      <Dialog open={dialogIsOpen} onOpenChange={closeDialog}>
+  <DialogContent aria-describedby={undefined} className="max-h-[80%] overflow-hidden">
+    <DialogHeader className="sticky top-0">
+      <DialogTitle>{formatPattern(dialogContent)}</DialogTitle>
+    </DialogHeader>
+    <div className="overflow-scroll max-h-[calc(80vh-80px)]">
+      <MdText text={references.get(dialogContent) || 'TBD'} />
+    </div>
+  </DialogContent>
+</Dialog>
   </>
 }
 

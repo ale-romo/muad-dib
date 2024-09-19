@@ -50,10 +50,10 @@ const Page4: React.FC<AiRmfProps> = (props) => {
                   <SectionTitle>{section.title}</SectionTitle>
                   {section.steps.map((step, i) => (
                     <div key={`overview-steps-${i}`} className="mb-10 [&:nth-child(odd)]:bg-red-100 p-5">
-                      <MdText className="text-xs text-gray-500">{`${step[0]}`}</MdText>
-                      <MdText className="text-xs font-bold mb-2 text-gray-500">{`${step[1]}`}</MdText>
-                      <MdText className="text-sm font-bold mb-2">{`${step[2]}`}</MdText>
-                      <MdText>{`${step[3]}`}</MdText>
+                      <MdText className="text-xs text-gray-500" text={step[0]} />
+                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
+                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
+                      <MdText text={step[30]} />
                     </div>
                   ))}
                 </div>
@@ -65,11 +65,11 @@ const Page4: React.FC<AiRmfProps> = (props) => {
                   <SectionTitle>{section.title}</SectionTitle>
                   {section.steps.map((step, i) => (
                     <div key={`worksheets-steps-${i}`} className="[&>div>ul]:list-none [&>div>ul]:gap-0 [&>div>ul>li:nth-child(odd)]:bg-red-500/10 [&>div>ul]:-mx-5 [&>div>ul>li]:px-12 [&>div>ul>li]:py-4 [&>div>ul>li]:list-inside mb-10 [&:nth-child(odd)]:bg-red-100 p-5 [&>div>h2]:text-lg [&>div>h2]:pb-5">
-                      <MdText className="text-xs text-gray-500">{`${step[0]}`}</MdText>
-                      <MdText className="text-xs font-bold mb-2 text-gray-500">{`${step[1]}`}</MdText>
-                      <MdText className="text-sm font-bold mb-2">{`${step[2]}`}</MdText>
-                      <MdText>{step[4]}</MdText>
-                      <MdText>{step[5]}</MdText>
+                      <MdText className="text-xs text-gray-500" text={step[0]} />
+                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
+                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
+                      <MdText text={step[4]} />
+                      <MdText text={step[5]} />
                     </div>
                   ))}
                 </div>
@@ -81,10 +81,10 @@ const Page4: React.FC<AiRmfProps> = (props) => {
                   <SectionTitle>{section.title}</SectionTitle>
                   {section.steps.map((step, i) => (
                     <div key={`resources-steps-${i}`} className="mb-10 [&:nth-child(odd)]:bg-red-100 p-5">
-                      <MdText className="text-xs text-gray-500">{`${step[0]}`}</MdText>
-                      <MdText className="text-xs font-bold mb-2 text-gray-500">{`${step[1]}`}</MdText>
-                      <MdText className="text-sm font-bold mb-2">{`${step[2]}`}</MdText>
-                      <MdText>{step[6]}</MdText>
+                      <MdText className="text-xs text-gray-500" text={step[0]} />
+                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
+                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
+                      <MdText text={step[6]} />
                     </div>
                   ))}
                 </div>

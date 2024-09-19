@@ -40,16 +40,22 @@ useEffect(() => {
     window.location.hash = newView;
   }
 
-  function reduceAiRmfProps(data: AiRmfProps): string[][] {
-    const result: string[][] = [];
+  function reduceAiRmfProps(data: AiRmfProps): Map<string, string> {
+    const result = new Map<string, string>();
 
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
         data[key].forEach(section => {
           section.steps.forEach(step => {
-            const title = step[2].toLowerCase().match(/^[a-z]+[-\s]\d+\.\d+/)?.[0].replace(/[-\s]+/g, '_').replace('.', '_') || '';
+            const title = step[2]
+              .toLowerCase()
+              .match(/^[a-z]+[-\s]\d+\.\d+/)?.[0]
+              .replace(/[-\s]+/g, '_')
+              .replace('.', '_') || '';
             const description = step[4];
-            result.push([title, description]);
+            if (title) {
+              result.set(title, description);
+            }
           });
         });
       }
@@ -127,7 +133,7 @@ useEffect(() => {
             )}
             <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
           </nav>
-        <Card className="flex flex-col h-full w-full">{renderView()}</Card>
+        <Card className="flex flex-col h-full w-full justify-center">{renderView()}</Card>
       </main>
     </div>
   );

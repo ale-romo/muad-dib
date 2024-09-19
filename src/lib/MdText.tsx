@@ -1,12 +1,12 @@
 import { marked } from 'marked';
 
 interface MdTextProps {
-  children: string;
+  text: string;
   className?: string;
 }
 
-const MdText= ({ children, className = '' }: MdTextProps) => {
-  return <div className={className} dangerouslySetInnerHTML={{ __html:marked.parse(children) }} />
+const MdText= ({ text, className = '' }: MdTextProps) => {
+  return <div className={className} dangerouslySetInnerHTML={{ __html:marked.parse(text) }} />
 };
 
 export default MdText;
