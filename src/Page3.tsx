@@ -29,7 +29,6 @@ interface SheetProps {
 import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
 import CollapsibleMDText from "./lib/CollapsibleMDText";
 import MdText from "./lib/MdText";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 // Reorganize nested data
 function countEmptySpacesBelow(matrix: string[][], row: number, col: number): number {
