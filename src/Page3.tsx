@@ -15,6 +15,10 @@ import {
   TableRow,
 } from "src/components/ui/table"
 import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from 'src/components/ui/toggle-group';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -52,7 +56,6 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
     }
     currentRow++;
   }
-
   return count;
 }
 
@@ -138,6 +141,33 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [dialogContent, setDialogContent] = useState<string>('');
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
+  const [results, setResults] = useState<string[][]>(sheet);
+  const [priorityFilter, setPriorityFilter] = useState<string>('');
+  const filters = [
+    'Low',
+    'Medium',
+    'High',
+  ]
+
+  // Priority Filters
+  useEffect(() => {
+    let res = sheet;
+
+    if (priorityFilter !== '') {
+      console.log(priorityFilter)
+      res = sheet.map((row) => {
+        // Check if the priority in column 3 matches the priorityFilter
+        console.log(row[2])
+        if (row[2] !== priorityFilter) {
+          // Return a new array where all cells except the first column (index 0) are empty
+          return row.map((cell, index) => (index === 0 ? cell : ""));
+        }
+        return row;
+      });
+    }
+
+    setResults(res);
+  }, [priorityFilter, sheet]);
 
   const closeDialog = () => {
     setDialogIsOpen(false);
@@ -150,6 +180,25 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   return <>
     <CardHeader>
         <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
+        <ToggleGroup type="single" variant="outline">
+          {filters.map(filter => (
+            filter.length ? <ToggleGroupItem
+              onClick={() => setPriorityFilter(filter)}
+              key={filter}
+              value={filter}
+              aria-label={`Filter ${filter}`}
+            >
+              {filter}
+            </ToggleGroupItem> : ''
+          ))}
+          <ToggleGroupItem
+            onClick={() => setPriorityFilter('')}
+            value=""
+            aria-label="Clear all filters"
+          >
+            Clear all filters
+          </ToggleGroupItem>
+        </ToggleGroup>
       </CardHeader>
       <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>
@@ -166,20 +215,20 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-          {sheet.slice(1).map((row, i:number) => (
+          {results.slice(1).map((row, i:number) => (
             <TableRow key={`row-${i}`} className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''}`} style={{ top: headerHeight - 2}}>
               {row.map((cell, j:number) => {
                 let styledCell = cell.replace(/\bsticky\b\s*/g, '');
                 if (j === 4) return <TableCell
                 key={`cell-${i}-${j}`}
                 className="align-top gap-2"
-                rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+                rowSpan={cell.length > 0 ? countEmptySpacesBelow(results, i, j) : 1}
                 >{parseAndRender(cell, setDialogContent, setDialogIsOpen)}</TableCell>;
                 if (cell === 'x') styledCell = '';
                 return <TableCell
                   key={`cell-${i}-${j}`}
                   className="align-top"
-                  rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+                  rowSpan={cell.length > 0 ? countEmptySpacesBelow(results, i, j) : 1}
                   ><CollapsibleMDText text={styledCell} /></TableCell>;
 
               })}

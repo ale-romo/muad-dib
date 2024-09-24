@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from "src/components/ui/accordion";
 import { AiRmfProps } from './lib/ai-rmf-content';
+import Worksheet from "src/components/Worksheet";
 
 const SectionTitle = ({ children }: { children: React.ReactNode, top?: number }) => <h2  className="text-lg font-bold p-5 z-10 sticky bg-white top-0">{children}</h2>
 
@@ -24,6 +25,12 @@ const scrollToSection =  (id: string) => {
 
 const Page5: React.FC<AiRmfProps> = (props) => {
   const [currentSteps, setCurrentSteps] = useState<number[]>([3]);
+
+  const worksheetContent= [
+    "title 1",
+    "title 2",
+    "title 3",
+  ]
 
   return <Tabs defaultValue={Object.keys(props)[0]} className="h-full grid grid-rows-[auto,1fr]">
     <TabsList className="grid grid-cols-4 m-5">
@@ -41,9 +48,7 @@ const Page5: React.FC<AiRmfProps> = (props) => {
               <Button variant={currentSteps[0] === 3 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([3])}>Overview</Button>
               <Button variant={currentSteps[0] === 4 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([4, 5])}>Tasks</Button>
               <Button variant={currentSteps[0] === 6 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([6])}>References</Button>
-              <Button asChild>
-                <a href="worksheets" target="_blank">Download Worksheet</a>
-              </Button>
+              <Worksheet titles={worksheetContent} />
             </div>
             <div className="flex-grow overflow-y-scroll">
               {sections.map((section, i) => (
@@ -51,7 +56,6 @@ const Page5: React.FC<AiRmfProps> = (props) => {
                   id={section.title}
                   type="multiple"
                   key={`overview-${i}`}
-                  defaultValue={['overview-steps-0-0']}
                 >
                   <SectionTitle>{section.title}:<br /> <span className="text-base text-">{section.description}</span></SectionTitle>
                   {section.steps.map((step, j) => (

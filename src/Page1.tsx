@@ -71,10 +71,10 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeFilter, setActiveFilter] = useState<string | string[]>('');
 
-  // TOD): add debounce to make search more efficient
+  // TODO: add debounce to make search more efficient
 
   const fuse = new Fuse(sheet.slice(1), {
-    keys: Array.from({ length: sheet[0].length }, (_, i) => `${i}`),
+    keys: Array.from({ length: sheet[0].length }, (_, i) => `${i}`).filter(i => i !== '4'),
     threshold: 0.3,
     includeScore: true,
     useExtendedSearch: true,
