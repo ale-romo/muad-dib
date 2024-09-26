@@ -25,7 +25,7 @@ const Page2: React.FC<SheetProps> = ({ sheet, title }) => {
     : sheet;
 
   return (
-    <>
+    <div className="h-full overflow-hidden">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
@@ -57,7 +57,7 @@ const Page2: React.FC<SheetProps> = ({ sheet, title }) => {
           <p>{sheet[currentItem][1]}</p>
         </section>
       </CardContent>
-    </>
+    </div>
   );
 };
 
