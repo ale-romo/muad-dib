@@ -3,7 +3,7 @@ interface DataType {
       [key: string]: string[][];
 }
 export const data:DataType = {
-      SP_800_53_Revision_5: [
+      SP_800_53: [
 ["", "A", "", "", ""],
 ["Filters", "", "", "", ""],
 ["Control Identifier", "Control (or Control Enhancement) Name", "Control Text", "Discussion", "Related identifiers"],

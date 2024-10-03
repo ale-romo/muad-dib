@@ -2,7 +2,7 @@ import WordByWordAnimation from "./components/WordByWordAnimation";
 
 const Home = () => {
   return (
-    <div className="flex flex-col gap-20 text-center">
+    <div className="flex flex-col gap-20 text-center justify-center h-full">
       <WordByWordAnimation>
           Welcome,<br />
           This website is your <span className="text-green-500">friend.</span><br />

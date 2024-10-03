@@ -25,7 +25,7 @@ const Page2: React.FC<SheetProps> = ({ sheet, title }) => {
     : sheet;
 
   return (
-    <div className="h-full overflow-hidden">
+    <div className="h-full overflow-hidden mb-5">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

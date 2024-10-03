@@ -133,7 +133,7 @@ useEffect(() => {
             )}
             <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
           </nav>
-        <Card className="flex flex-col w-full justify-center">{renderView()}</Card>
+        <Card className="flex flex-col w-full justify-start">{renderView()}</Card>
       </main>
     </div>
   );

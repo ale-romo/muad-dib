@@ -99,8 +99,16 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   }
 
   useEffect(() => {
-    let searchResults = query ? fuse.search(query).map(result => result.item).sort((a, b) => sheet.slice(1).indexOf(a) - sheet.slice(1).indexOf(b)) : sheet.slice(1);
+    let searchResults;
 
+    // Step 1: Perform the Fuse search if there's a query
+    if (query) {
+      searchResults = fuse.search(query).map(result => result.item);
+    } else {
+      searchResults = sheet.slice(1); // If no query, use the full sheet without the header
+    }
+
+    // Step 2: Filter based on activeFilter if it's present
     if (activeFilter) {
       if (Array.isArray(activeFilter)) {
         searchResults = searchResults.filter(row => activeFilter.some(filter => row.includes(filter)));
@@ -109,9 +117,87 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
       }
     }
 
+    // Step 3: Sorting helper function to parse and sort by letters, dash number, and parentheses number
+    const sortByIdentifier = (a, b) => {
+      const parseIdentifier = (str) => {
+        const match = str.match(/^([a-zA-Z]+)-(\d+)(?:\((\d+)\))?$/);
+        if (match) {
+          const [_, letters, mainNumber, parenNumber] = match;
+          return {
+            letters: letters.toLowerCase(),
+            mainNumber: parseInt(mainNumber, 10),
+            parenNumber: parenNumber ? parseInt(parenNumber, 10) : null,
+          };
+        }
+        return { letters: str.toLowerCase(), mainNumber: null, parenNumber: null };
+      };
+
+      const idA = parseIdentifier(a[0].toString());
+      const idB = parseIdentifier(b[0].toString());
+
+      // Compare letters first (e.g., ac, bc)
+      if (idA.letters !== idB.letters) {
+        return idA.letters.localeCompare(idB.letters);
+      }
+
+      // Compare main number (after the dash) (e.g., ac-12 vs ac-2)
+      if (idA.mainNumber !== idB.mainNumber) {
+        return idA.mainNumber - idB.mainNumber;
+      }
+
+      // Compare parentheses number if both have it (e.g., ac-12(1) vs ac-12(2))
+      if (idA.parenNumber !== null && idB.parenNumber !== null) {
+        return idA.parenNumber - idB.parenNumber;
+      }
+
+      // If only one has parentheses number, it comes after the one without it
+      if (idA.parenNumber !== null) return 1;
+      if (idB.parenNumber !== null) return -1;
+
+      return 0; // If everything is equal
+    };
+
+    // Step 4: Reorder results based on query match and identifier sorting
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+
+      // Exact matches (cells that exactly match the query)
+      const exactMatches = searchResults.filter(row =>
+        row.some(cell => cell.toString().toLowerCase() === lowerQuery)
+      );
+
+      // Starts-with matches (cells that start with the query)
+      const startsWithMatches = searchResults.filter(row =>
+        !row.some(cell => cell.toString().toLowerCase() === lowerQuery) &&
+        row.some(cell => cell.toString().toLowerCase().startsWith(lowerQuery))
+      );
+
+      // Sort starts-with matches naturally
+      startsWithMatches.sort(sortByIdentifier);
+
+      // Partial matches (don't start with the query)
+      const partialMatches = searchResults.filter(row =>
+        !row.some(cell => cell.toString().toLowerCase() === lowerQuery) &&
+        !row.some(cell => cell.toString().toLowerCase().startsWith(lowerQuery))
+      );
+
+      // Sort partial matches naturally
+      partialMatches.sort(sortByIdentifier);
+
+      // Combine exact matches, starts-with matches, and partial matches
+      searchResults = [...exactMatches, ...startsWithMatches, ...partialMatches];
+    }
+
+    // Step 5: Update the results (including the header row)
     setResults([sheet[0], ...searchResults]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, activeFilter]);
+
+
+
+
+
 
 
   const handleSort = (index: number) => {

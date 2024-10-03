@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "src/components/ui/dialog";
+import { owasp } from 'src/lib/owasp-content';
 
 interface SheetProps {
   title: string;
@@ -135,6 +136,12 @@ const formatPattern = (pattern: string): string => {
   return `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${numbers.join('.')}`;
 };
 
+const Owasp = ({ content }:{ content: string }) => {
+  const [key, indexStr] = content.split('_');
+
+  return <div>{content}</div>;
+}
+
 
 const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   const tableHeaderRef = useRef<HTMLTableSectionElement | null>(null);
@@ -150,24 +157,22 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   ]
 
   // Priority Filters
-  useEffect(() => {
-    let res = sheet;
+  // useEffect(() => {
+  //   let res = sheet;
 
-    if (priorityFilter !== '') {
-      console.log(priorityFilter)
-      res = sheet.map((row) => {
-        // Check if the priority in column 3 matches the priorityFilter
-        console.log(row[2])
-        if (row[2] !== priorityFilter) {
-          // Return a new array where all cells except the first column (index 0) are empty
-          return row.map((cell, index) => (index === 0 ? cell : ""));
-        }
-        return row;
-      });
-    }
+  //   if (priorityFilter !== '') {
+  //     res = sheet.map((row) => {
+  //       // Check if the priority in column 3 matches the priorityFilter
+  //       if (row[2] !== priorityFilter) {
+  //         // Return a new array where all cells except the first column (index 0) are empty
+  //         return row.map((cell, index) => (index === 0 ? cell : ""));
+  //       }
+  //       return row;
+  //     });
+  //   }
 
-    setResults(res);
-  }, [priorityFilter, sheet]);
+  //   setResults(res);
+  // }, [priorityFilter, sheet]);
 
   const closeDialog = () => {
     setDialogIsOpen(false);
@@ -176,6 +181,8 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   useEffect(() => {
     if (tableHeaderRef?.current?.clientHeight) setHeaderHeight(tableHeaderRef.current.clientHeight)
   }, []);
+
+  const refContent = references.get(dialogContent);
 
   return <>
     <CardHeader>
@@ -216,7 +223,10 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
           </TableHeader>
           <TableBody>
           {results.slice(1).map((row, i:number) => (
-            <TableRow key={`row-${i}`} className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''}`} style={{ top: headerHeight - 2}}>
+            <TableRow key={`row-${i}`}
+              className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-300' : ''}`}
+              style={{ top: headerHeight - 2}}
+            >
               {row.map((cell, j:number) => {
                 let styledCell = cell.replace(/\bsticky\b\s*/g, '');
                 if (j === 4) return <TableCell
@@ -243,7 +253,10 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
       <DialogTitle>{formatPattern(dialogContent)}</DialogTitle>
     </DialogHeader>
     <div className="overflow-scroll max-h-[calc(80vh-80px)]">
-      <MdText text={references.get(dialogContent) || 'TBD'} />
+      {refContent?
+        <MdText text={refContent} /> :
+        <Owasp content={dialogContent} />
+      }
     </div>
   </DialogContent>
 </Dialog>
