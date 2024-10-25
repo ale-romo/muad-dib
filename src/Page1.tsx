@@ -20,6 +20,7 @@ import {
 import Fuse from 'fuse.js';
 import CollapsibleMDText from "./lib/CollapsibleMDText";
 import { Toggle } from "./components/ui/toggle";
+import { QueryFilters } from "./App";
 
 
 const scrollToSelectedIdentifier = (href: string) => {
@@ -62,9 +63,12 @@ interface PageProps {
   title: string;
   sheet: string[][];
   filters?: string[];
+  queryFilters: QueryFilters;
+  setQueryFilters: React.Dispatch<React.SetStateAction<QueryFilters>>;
 }
 
-const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
+const Page1: React.FC<PageProps> = ({ sheet, title, filters = [], queryFilters = null }, setQueryFilters) => {
+  console.log(queryFilters)
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<string[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
@@ -92,10 +96,10 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [] }) => {
   }
 
   const handleArrayFilter = (filter: string[]) => {
-    console.log(JSON.stringify(filter) )
-    console.log(JSON.stringify(activeFilter))
+    // console.log(JSON.stringify(filter) )
+    // console.log(JSON.stringify(activeFilter))
     const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? '' : filter;
-    console.log(newFilter)
+    // console.log(newFilter)
     setActiveFilter(newFilter);
   }
 

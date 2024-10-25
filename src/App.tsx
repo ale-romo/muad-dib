@@ -20,20 +20,30 @@ import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
 type View = string;
+export type QueryFilters = [string, string][] | null;
 
 const App: React.FC = () => {
-  const [view, setView] = useState<View>(() => window.location.hash ? window.location.hash.substring(1) : '');
+  const [view, setView] = useState<View>('');
+  const [queryFilters, setQueryFilters] = useState<QueryFilters>(null);
 
-useEffect(() => {
-  const handleHash = () => {
-    const hash = window.location.hash.substring(1);
-    setView(hash);
-  }
+  useEffect(() => {
+    const updateStateFromHash = () => {
+      const hash = window.location.hash.substring(1);
+      const section = hash.match(/^\w+/)?.[0] || '';
+      setView(section);
 
-  window.addEventListener('hashchange', handleHash);
+      const queryString = hash.includes('?') ? hash.split('?')[1] : '';
+      const queryParams = new URLSearchParams(queryString);
+      const filterArray = Array.from(queryParams.entries());
+      setQueryFilters(filterArray);
+    };
 
-  return () => window.removeEventListener('hashchange', handleHash);
-}, []);
+    updateStateFromHash();
+
+    window.addEventListener('hashchange', updateStateFromHash);
+
+    return () => window.removeEventListener('hashchange', updateStateFromHash);
+  }, []);
 
   const navigate = (newView: View) => {
     setView(newView);
@@ -80,6 +90,8 @@ useEffect(() => {
           title={view}
           sheet={(data[view].slice(2))}
           filters={data[view][1][1].length > 0 ? data[view][1][1].split(', ') : []}
+          queryFilters={queryFilters}
+          setQueryFilters={setQueryFilters}
         />
       case 'B':
         // Splunk Queries
@@ -100,6 +112,7 @@ useEffect(() => {
         <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={data[view][1][1].split(', ')} />
     }
   };
+
   return (
     <div className="h-svh overflow:hidden">
         <Sheet>

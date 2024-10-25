@@ -20,7 +20,6 @@ const splitTextIntoWords = (content: ReactNode): ReactNode[] | ReactNode => {
     const element = content as React.ReactElement;
     // Check if the element is a <br> tag
     if (element.type === 'br') {
-      console.log(element)
       return element; // Return <br> element untouched
     }
 
@@ -36,7 +35,6 @@ const splitTextIntoWords = (content: ReactNode): ReactNode[] | ReactNode => {
 
 const WordByWordAnimation: React.FC<WordByWordAnimationProps> = ({ children }) => {
   const words = splitTextIntoWords(children);
-  console.log(words)
   const container = {
     hidden: { opacity: 1 },
     visible: {
