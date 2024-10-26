@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "src/components/ui/dialog";
+import { updateQueryParams } from "./lib/utils";
 import { owasp } from 'src/lib/owasp-content';
 
 interface SheetProps {
@@ -156,29 +157,22 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
     'High',
   ]
 
-  // Priority Filters
-  // useEffect(() => {
-  //   let res = sheet;
-
-  //   if (priorityFilter !== '') {
-  //     res = sheet.map((row) => {
-  //       // Check if the priority in column 3 matches the priorityFilter
-  //       if (row[2] !== priorityFilter) {
-  //         // Return a new array where all cells except the first column (index 0) are empty
-  //         return row.map((cell, index) => (index === 0 ? cell : ""));
-  //       }
-  //       return row;
-  //     });
-  //   }
-
-  //   setResults(res);
-  // }, [priorityFilter, sheet]);
-
   const closeDialog = () => {
     setDialogIsOpen(false);
   };
 
+  const handlePriorityFilter = (filter: string) => {
+    setPriorityFilter(filter);
+    updateQueryParams({ filter: filter });
+  }
+
   useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.split('?')[1]);
+    const filterParam = params.get('filter');
+    if (filterParam) {
+      setPriorityFilter(filterParam);
+    }
+
     if (tableHeaderRef?.current?.clientHeight) setHeaderHeight(tableHeaderRef.current.clientHeight)
   }, []);
 
@@ -190,7 +184,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
         <ToggleGroup type="single" variant="outline">
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem
-              onClick={() => setPriorityFilter(filter)}
+              onClick={() => handlePriorityFilter(filter)}
               key={filter}
               value={filter}
               aria-label={`Filter ${filter}`}
@@ -199,7 +193,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
             </ToggleGroupItem> : ''
           ))}
           <ToggleGroupItem
-            onClick={() => setPriorityFilter('')}
+            onClick={() => handlePriorityFilter('')}
             value=""
             aria-label="Clear all filters"
           >

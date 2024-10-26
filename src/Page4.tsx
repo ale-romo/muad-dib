@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Button } from "src/components/ui/button"
 import {
   Tabs,
   TabsContent,
@@ -6,94 +7,82 @@ import {
   TabsTrigger,
 } from "src/components/ui/tabs";
 import MdText from "src/lib/MdText";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "src/components/ui/accordion";
+import { AiRmfProps } from './lib/ai-rmf-content';
+import Worksheet from "src/components/Worksheet";
 
-interface AiRmfProps {
-  [key: string]: {
-    title: string;
-    steps: string[][];
-  }[];
+const SectionTitle = ({ children }: { children: React.ReactNode, top?: number }) => <h2  className="text-lg font-bold p-5 z-10 sticky bg-white top-0">{children}</h2>
+
+const scrollToSection =  (id: string) => {
+  const el = document.querySelector(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" })
 }
 
 const Page4: React.FC<AiRmfProps> = (props) => {
-  const containerHeightRef = useRef<HTMLDivElement | null>(null);
-  const menuHeightRef = useRef<HTMLDivElement | null>(null);
-  const submenuHeightRef = useRef<HTMLDivElement | null>(null);
-  const [contentHeight, setContentHeight] = useState(0);
+  const [currentSteps, setCurrentSteps] = useState<number[]>([3]);
 
-  useEffect(() => {
-    if (containerHeightRef?.current?.clientHeight && menuHeightRef?.current?.clientHeight && submenuHeightRef?.current?.clientHeight) {
+  const worksheetContent= [
+    "title 1",
+    "title 2",
+    "title 3",
+  ]
 
-      setContentHeight(containerHeightRef.current.clientHeight - menuHeightRef.current.clientHeight - submenuHeightRef.current.clientHeight -10);
-    }
-  }, []);
-
-  const SectionTitle = ({ children }: { children: React.ReactNode }) => <h2  className="text-lg font-bold mb-6 pb-2 sticky top-0 bg-white">{children}</h2>
-
-  return <Tabs defaultValue={Object.keys(props)[0]} className="m-5 overflow-hidden h-full" ref={containerHeightRef}>
-    <TabsList className="grid w-full grid-cols-2" ref={menuHeightRef}>
+  return <Tabs defaultValue={Object.keys(props)[0]} className="h-full grid grid-rows-[auto,1fr]">
+    <TabsList className="grid grid-cols-4 m-5">
       {Object.entries(props).map(([key]) => (
         <TabsTrigger key={`menu-${key}`} value={key}>{key}</TabsTrigger>
       ))}
     </TabsList>
-    {Object.entries(props).map(([key, sections]) => (
-      <TabsContent value={key} key={`content-${key}`}>
-        <Tabs defaultValue="overview">
-          <TabsList ref={submenuHeightRef}>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="worksheet">WorkSheet</TabsTrigger>
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-          </TabsList>
-          <div className="h-screen overflow-scroll" style={{ height: contentHeight }}>
-            <TabsContent value="overview" className="">
-              {sections.map((section, index) => (
-                <div key={`overview-${index}`}>
-                  <SectionTitle>{section.title}</SectionTitle>
-                  {section.steps.map((step, i) => (
-                    <div key={`overview-steps-${i}`} className="mb-10 [&:nth-child(odd)]:bg-red-100 p-5">
-                      <MdText className="text-xs text-gray-500" text={step[0]} />
-                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
-                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
-                      <MdText text={step[30]} />
-                    </div>
+    <div className="overflow-hidden">
+      {Object.entries(props).map(([key, sections]) => (
+        <TabsContent value={key} key={`content-${key}`} className="h-full">
+          <div className="flex flex-col h-full">
+            <div className="gap-3 flex justify-end items-center top-0 bg-white mx-5">
+              <label>{key}:</label>
+              {sections.map((section, i) => <Button key={`${section.title}-${i}`} variant="outline" onClick={() => scrollToSection(`#${section.title}`)}>{i+1}</Button>)}
+              <Button variant={currentSteps[0] === 3 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([3])}>Overview</Button>
+              <Button variant={currentSteps[0] === 4 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([4, 5])}>Tasks</Button>
+              <Button variant={currentSteps[0] === 6 ? 'secondary' : 'outline'} onClick={() => setCurrentSteps([6])}>References</Button>
+              <Worksheet titles={worksheetContent} />
+            </div>
+            <div className="flex-grow overflow-y-scroll">
+              {sections.map((section, i) => (
+                <Accordion
+                  id={section.title}
+                  type="multiple"
+                  key={`overview-${i}`}
+                >
+                  <SectionTitle>{section.title}:<br /> <span className="text-base text-">{section.description}</span></SectionTitle>
+                  {section.steps.map((step, j) => (
+                    <AccordionItem value={`overview-steps-${i}-${j}`} key={`overview-steps-${i}-${j}`} className="[&:nth-child(odd)]:bg-gray-100/50 p-5">
+                      <AccordionTrigger className="text-left">
+                        <div>
+                          <MdText className="text-sm font-bold mb-2" text={step[2]} />
+
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="flex gap-10">
+                        <div className="">
+                        {currentSteps.map(currentStep => <div key={`step-${currentStep}`}>
+                          <MdText className="text-xs mb-2 text-gray-500" text={`${step[0]} | ${step[1]}`} />
+                          <MdText text={step[currentStep]} />
+                        </div>)}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
                   ))}
-                </div>
+                </Accordion>
               ))}
-            </TabsContent>
-            <TabsContent value="worksheet">
-              {sections.map((section, index) => (
-                <div key={`worksheets-${index}`}>
-                  <SectionTitle>{section.title}</SectionTitle>
-                  {section.steps.map((step, i) => (
-                    <div key={`worksheets-steps-${i}`} className="[&>div>ul]:list-none [&>div>ul]:gap-0 [&>div>ul>li:nth-child(odd)]:bg-red-500/10 [&>div>ul]:-mx-5 [&>div>ul>li]:px-12 [&>div>ul>li]:py-4 [&>div>ul>li]:list-inside mb-10 [&:nth-child(odd)]:bg-red-100 p-5 [&>div>h2]:text-lg [&>div>h2]:pb-5">
-                      <MdText className="text-xs text-gray-500" text={step[0]} />
-                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
-                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
-                      <MdText text={step[4]} />
-                      <MdText text={step[5]} />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </TabsContent>
-            <TabsContent value="resources">
-              {sections.map((section, index) => (
-                <div key={`resources-${index}`}>
-                  <SectionTitle>{section.title}</SectionTitle>
-                  {section.steps.map((step, i) => (
-                    <div key={`resources-steps-${i}`} className="mb-10 [&:nth-child(odd)]:bg-red-100 p-5">
-                      <MdText className="text-xs text-gray-500" text={step[0]} />
-                      <MdText className="text-xs font-bold mb-2 text-gray-500" text={step[1]} />
-                      <MdText className="text-sm font-bold mb-2" text={step[2]} />
-                      <MdText text={step[6]} />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </TabsContent>
+            </div>
           </div>
-        </Tabs>
-      </TabsContent>
-    ))}
+        </TabsContent>
+      ))}
+    </div>
   </Tabs>
 }
 

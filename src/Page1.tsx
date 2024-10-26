@@ -19,9 +19,8 @@ import {
 } from 'src/components/ui/toggle-group';
 import Fuse from 'fuse.js';
 import CollapsibleMDText from "./lib/CollapsibleMDText";
+import { updateQueryParams } from "./lib/utils";
 import { Toggle } from "./components/ui/toggle";
-import { QueryParams } from "./App";
-
 
 const scrollToSelectedIdentifier = (href: string) => {
   const el = document.querySelector(href);
@@ -63,17 +62,15 @@ interface PageProps {
   title: string;
   sheet: string[][];
   filters?: string[];
-  queryParams: QueryParams;
-  setQueryParams: React.Dispatch<React.SetStateAction<QueryParams>>;
 }
 
-const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQueryParams }) => {
+const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
 
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<string[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [activeFilter, setActiveFilter] = useState<string | string[]>('');
+  const [activeFilter, setActiveFilter] = useState<string>('');
 
   // TODO: add debounce to make search more efficient
 
@@ -88,32 +85,37 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQue
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setQuery(query);
-  }
+    updateQueryParams({ search: query });
+  };
 
-  const handleStringFilter = (filter: string) => {
+  const handleFilter = (filter: string) => {
     const newFilter = filter === activeFilter ? '' : filter;
-    window.location.hash = `${title}${newFilter ? `?filter=${newFilter}` : ''}`;
     setActiveFilter(newFilter);
-  }
+    updateQueryParams({ filter: newFilter });
+  };
 
-  const handleArrayFilter = (filter: string[]) => {
-    // console.log(JSON.stringify(filter) )
-    // console.log(JSON.stringify(activeFilter))
-    const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? '' : filter;
-    // console.log(newFilter)
-    setActiveFilter(newFilter);
-  }
+  // const handleArrayFilter = (filter: string[]) => {
+  //   // console.log(JSON.stringify(filter) )
+  //   // console.log(JSON.stringify(activeFilter))
+  //   const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? '' : filter;
+  //   // console.log(newFilter)
+  //   setActiveFilter(newFilter);
+  // }
 
   useEffect(() => {
-    let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
-
-    // Check for "filter" in the query params and set it as activeFilter
+    // Check for query params and set it as filter and query
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const filterParam = params.get('filter');
+    const searchParam = params.get('search');
     if (filterParam && filterParam !== activeFilter) {
       setActiveFilter(filterParam);
     }
+    if (searchParam) setQuery(searchParam);
 
+    // Filter by Query
+    let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+
+    // Filter by Filter
     if (activeFilter) {
       if (Array.isArray(activeFilter)) {
         searchResults = searchResults.filter(row => activeFilter.some(filter => row.includes(filter)));
@@ -155,7 +157,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQue
         {filters?.length ? <ToggleGroup type="single" variant="outline" value={activeFilter}>
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem
-              onClick={() => handleStringFilter(filter)}
+              onClick={() => handleFilter(filter)}
               key={filter}
               value={filter}
 
@@ -165,7 +167,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQue
             </ToggleGroupItem> : ''
           ))}
           <ToggleGroupItem
-            onClick={() => handleStringFilter('')}
+            onClick={() => handleFilter('')}
             value=""
             aria-label="Clear all filters"
           >
@@ -191,7 +193,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQue
           <TableBody>
             {results.slice(1).map((row: string[], i: number) => {
               let rowId = "";
-              let filters = [''];
+              // let filters = [''];
               return <TableRow key={i}>{row.map((cell: string, j: number) => {
                 if (j === 0) {
                   rowId = cell;
@@ -205,7 +207,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQue
                   id={`${j === 0 ? cell : ""}`}
                 >
                   {j === 4 ? GenerateIdentifierLinks(cell) : <CollapsibleMDText text={cell} />}
-                  {j === 4 && filters.length > 1 ? <Toggle className="block" onClick={() => handleArrayFilter(filters)}>Filter related</Toggle> : ""}
+                  {/* {j === 4 && filters.length > 1 ? <Toggle className="block" onClick={() => handleArrayFilter(filters)}>Filter related</Toggle> : ""} */}
                   </TableCell>
                 })}</TableRow>
               })}

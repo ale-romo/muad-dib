@@ -15,44 +15,20 @@ import Home from 'src/Home';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
-import Page5 from './Page5';
+import Page4 from './Page4';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
 type View = string;
 
-export interface QueryParams {
-  search?: string | null;
-  filter?: string | null;
-}
-
-
-const extractParams = (params: [string, string][]) => {
-  const result: { search?: string; filter?: string } = {};
-
-  for (const [key, value] of params) {
-    if (key === 'search' || key === 'filter') {
-      result[key] = value;
-    }
-  }
-
-  return result;
-};
-
 const App: React.FC = () => {
   const [view, setView] = useState<View>('');
-  const [queryParams, setQueryParams] = useState<QueryParams>({});
 
   useEffect(() => {
     const updateStateFromHash = () => {
       const hash = window.location.hash.substring(1);
       const section = hash.match(/^\w+/)?.[0] || '';
       setView(section);
-
-      const queryString = hash.includes('?') ? hash.split('?')[1] : '';
-      const queryPar = new URLSearchParams(queryString);
-      const filterArray = Array.from(queryPar.entries());
-      setQueryParams(extractParams(filterArray));
     };
 
     updateStateFromHash();
@@ -93,7 +69,7 @@ const App: React.FC = () => {
 
   const renderView = () => {
     if (view === '') return <Home />
-    if (view === 'AI_RMF') return <Page5 {...aiRmfData} />
+    if (view === 'AI_RMF') return <Page4 {...aiRmfData} />
     switch (data[view][0][1]) {
       case 'A':
         // SP 800 53 (Consider breaking out own template)
@@ -107,8 +83,6 @@ const App: React.FC = () => {
           title={view}
           sheet={(data[view].slice(2))}
           filters={data[view][1][1].length > 0 ? data[view][1][1].split(', ') : []}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
         />
       case 'B':
         // Splunk Queries
