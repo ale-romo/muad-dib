@@ -20,11 +20,28 @@ import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
 type View = string;
-export type QueryFilters = [string, string][] | null;
+
+export interface QueryParams {
+  search?: string | null;
+  filter?: string | null;
+}
+
+
+const extractParams = (params: [string, string][]) => {
+  const result: { search?: string; filter?: string } = {};
+
+  for (const [key, value] of params) {
+    if (key === 'search' || key === 'filter') {
+      result[key] = value;
+    }
+  }
+
+  return result;
+};
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('');
-  const [queryFilters, setQueryFilters] = useState<QueryFilters>(null);
+  const [queryParams, setQueryParams] = useState<QueryParams>({});
 
   useEffect(() => {
     const updateStateFromHash = () => {
@@ -33,9 +50,9 @@ const App: React.FC = () => {
       setView(section);
 
       const queryString = hash.includes('?') ? hash.split('?')[1] : '';
-      const queryParams = new URLSearchParams(queryString);
-      const filterArray = Array.from(queryParams.entries());
-      setQueryFilters(filterArray);
+      const queryPar = new URLSearchParams(queryString);
+      const filterArray = Array.from(queryPar.entries());
+      setQueryParams(extractParams(filterArray));
     };
 
     updateStateFromHash();
@@ -90,8 +107,8 @@ const App: React.FC = () => {
           title={view}
           sheet={(data[view].slice(2))}
           filters={data[view][1][1].length > 0 ? data[view][1][1].split(', ') : []}
-          queryFilters={queryFilters}
-          setQueryFilters={setQueryFilters}
+          queryParams={queryParams}
+          setQueryParams={setQueryParams}
         />
       case 'B':
         // Splunk Queries
@@ -109,7 +126,12 @@ const App: React.FC = () => {
           references={reduceAiRmfProps(aiRmfData)}
         />
       default:
-        <Page1 key={view} title={view} sheet={data[view].slice(2)} filters={data[view][1][1].split(', ')} />
+        <Page1
+          key={view}
+          title={view}
+          sheet={data[view].slice(2)}
+          filters={data[view][1][1].split(', ')}
+        />
     }
   };
 

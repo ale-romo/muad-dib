@@ -20,7 +20,7 @@ import {
 import Fuse from 'fuse.js';
 import CollapsibleMDText from "./lib/CollapsibleMDText";
 import { Toggle } from "./components/ui/toggle";
-import { QueryFilters } from "./App";
+import { QueryParams } from "./App";
 
 
 const scrollToSelectedIdentifier = (href: string) => {
@@ -63,12 +63,12 @@ interface PageProps {
   title: string;
   sheet: string[][];
   filters?: string[];
-  queryFilters: QueryFilters;
-  setQueryFilters: React.Dispatch<React.SetStateAction<QueryFilters>>;
+  queryParams: QueryParams;
+  setQueryParams: React.Dispatch<React.SetStateAction<QueryParams>>;
 }
 
-const Page1: React.FC<PageProps> = ({ sheet, title, filters = [], queryFilters = null }, setQueryFilters) => {
-  console.log(queryFilters)
+const Page1: React.FC<PageProps> = ({ sheet, title, filters, queryParams, setQueryParams }) => {
+
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<string[][]>(sheet);
   const [sortColumn, setSortColumn] = useState<number | null>(null);
@@ -92,6 +92,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [], queryFilters =
 
   const handleStringFilter = (filter: string) => {
     const newFilter = filter === activeFilter ? '' : filter;
+    window.location.hash = `${title}${newFilter ? `?filter=${newFilter}` : ''}`;
     setActiveFilter(newFilter);
   }
 
@@ -105,6 +106,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [], queryFilters =
 
   useEffect(() => {
     let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
+
+    // Check for "filter" in the query params and set it as activeFilter
+    const params = new URLSearchParams(window.location.hash.split('?')[1]);
+    const filterParam = params.get('filter');
+    if (filterParam && filterParam !== activeFilter) {
+      setActiveFilter(filterParam);
+    }
 
     if (activeFilter) {
       if (Array.isArray(activeFilter)) {
@@ -144,12 +152,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters = [], queryFilters =
           placeholder="Search..."
           className="mb-4 p-2 border rounded"
         />
-        {filters.length ? <ToggleGroup type="single" variant="outline">
+        {filters?.length ? <ToggleGroup type="single" variant="outline" value={activeFilter}>
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem
               onClick={() => handleStringFilter(filter)}
               key={filter}
               value={filter}
+
               aria-label={`Filter ${filter}`}
             >
               {filter}
