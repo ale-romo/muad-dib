@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { data } from 'src/lib/content';
 import { aiRmfData, AiRmfProps } from 'src/lib/ai-rmf-content';
+import { blogData } from './content/blog-content';
 import {
   Sheet,
   SheetTitle,
@@ -12,10 +13,12 @@ import {
 } from "src/components/ui/sheet"
 import { Button } from "src/components/ui/button"
 import Home from 'src/Home';
+import NotFound from './pages/NotFound';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
 import Page4 from './Page4';
+import Page5 from './pages/Page5';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
 
@@ -70,6 +73,8 @@ const App: React.FC = () => {
   const renderView = () => {
     if (view === '') return <Home />
     if (view === 'AI_RMF') return <Page4 {...aiRmfData} />
+    if (view === 'blog') return <Page5 {...blogData} />
+    if (!data[view]) return <NotFound />
     switch (data[view][0][1]) {
       case 'A':
         // SP 800 53 (Consider breaking out own template)
@@ -141,6 +146,7 @@ const App: React.FC = () => {
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
             )}
             <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
+            <Button onClick={() => navigate('blog')}>Blog</Button>
           </nav>
         <Card className="flex flex-col w-full justify-start">{renderView()}</Card>
       </main>

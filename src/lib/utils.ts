@@ -5,7 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const updateQueryParams = (params: { search?: string; filter?: string }) => {
+interface QueryParams {
+  [key: string]: string | undefined;
+}
+
+export const updateQueryParams = (params: QueryParams) => {
   const [baseTitle] = window.location.hash.split('?');
   const queryParams = new URLSearchParams(window.location.hash.split('?')[1]);
 
@@ -17,6 +21,7 @@ export const updateQueryParams = (params: { search?: string; filter?: string }) 
       queryParams.delete(key); // Remove if value is empty or undefined
     }
   });
+
   // Construct the new hash
   const newHash = queryParams.toString()
     ? `${baseTitle}?${queryParams.toString()}` // Include '?' only if there are params
@@ -25,3 +30,9 @@ export const updateQueryParams = (params: { search?: string; filter?: string }) 
   // Update the window hash
   window.location.hash = newHash;
 };
+
+
+export const checkParam = (param: string, options: string[]) => {
+  return options.includes(param) ? param : options[0];
+}
+

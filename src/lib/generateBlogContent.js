@@ -6,10 +6,10 @@ import * as XLSX from 'xlsx';
 const __dirname = new URL('.', import.meta.url).pathname;
 
 // Path to your Excel file in the /assets directory
-const excelFilePath = path.join(__dirname, '../assets', 'owasp.xlsx');
+const excelFilePath = path.join(__dirname, '../assets', 'muad-dib-blog.xlsx');
 
 // Path to the output JavaScript file
-const outputFilePath = path.join(__dirname, '/', 'owasp-content.ts');
+const outputFilePath = path.join(__dirname, '/', '../content/blog-content.ts');
 
 // Utility function to check if a row is empty
 const isEmptyRow = (row) => row.every(cell => cell === undefined || cell === null || String(cell).trim() === '');
@@ -52,10 +52,10 @@ const generateStaticContent = async () => {
       return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;
     }).join(',\n');
     const jsContent = `
-interface DataType {
+export interface BlogProps {
       [key: string]: string[][];
 }
-export const owaspData:DataType = {
+export const blogData:BlogProps = {
       ${worksheetsString}
   };`;
 

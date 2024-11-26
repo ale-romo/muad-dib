@@ -25,16 +25,19 @@ import {
   DialogTitle,
 } from "src/components/ui/dialog";
 import { updateQueryParams } from "./lib/utils";
-import { owasp } from 'src/lib/owasp-content';
+import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
+import CollapsibleMDText from "./lib/CollapsibleMDText";
+import MdText from "./lib/MdText";
+import { owaspData } from 'src/lib/owasp-content';
+
+type StringStateSetter = React.Dispatch<React.SetStateAction<string>>;
+type BooleanStateSetter = React.Dispatch<React.SetStateAction<boolean>>;
 
 interface SheetProps {
   title: string;
   sheet: string[][];
   references: Map<string, string>;
 }
-import { replaceUnderscoresWithSpaces } from "./lib/handleNames";
-import CollapsibleMDText from "./lib/CollapsibleMDText";
-import MdText from "./lib/MdText";
 
 // Reorganize nested data
 function countEmptySpacesBelow(matrix: string[][], row: number, col: number): number {
@@ -42,13 +45,10 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
   if (row < 0 || col < 0 || row >= matrix.length || col >= matrix[0].length) {
     throw new Error("Invalid cell coordinates.");
   }
-
   // Initialize the count of empty spaces
   let count = 1;
-
   // Start from the cell below the specified cell
   let currentRow = row + 1;
-
   // Iterate downwards in the same column
   while (currentRow < matrix.length) {
     if (matrix[currentRow][col] === '') {
@@ -62,13 +62,8 @@ function countEmptySpacesBelow(matrix: string[][], row: number, col: number): nu
 }
 
 // Function to parse and render
-const parseAndRender = (str: string, setContent: any, setDialog: any) => {
+const parseAndRender = (str: string, openDialog: (dialogContent: string) => void) => {
   const result: (string | JSX.Element)[] = [];
-
-  const openDialog = (identifier: string) => {
-    setContent(identifier);
-    setDialog(true);
-  }
 
   // Define subcategories and regex patterns
   const aiRmfSubcategories = ['Govern', 'Measure', 'Manage', 'Map'];
@@ -119,7 +114,6 @@ const parseAndRender = (str: string, setContent: any, setDialog: any) => {
         <button
           className="underline"
           key={`${identifier}`}
-          // onClick={() => console.log(`owasp_${identifier.replace('-', '_')}`)}
           onClick={() => openDialog(`${identifier.replace('-', '_')}`)}
         >
           {identifier}
@@ -137,11 +131,25 @@ const formatPattern = (pattern: string): string => {
   return `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${numbers.join('.')}`;
 };
 
-const Owasp = ({ content }:{ content: string }) => {
-  const [key, indexStr] = content.split('_');
+const Owasp = ({ section }: { section: string }) => {
+  const [key, rawSuffix] = section.split('_');  // Extract key and suffix from section
+  const suffix = rawSuffix?.match(/^\d/)?.[0];
+  const data = owaspData[key];  // Get data for the key from owaspData
 
-  return <div>{content}</div>;
-}
+  if (!data) {
+    return <div>Data not found for section: {section}</div>;
+  }
+
+  const title = suffix ? `${data[1][0]}.${suffix}` : data[1][0];
+  const content = suffix ? data[Number(suffix)][3] : data[1][1];
+
+  return (
+    <div>
+      <h3 className="font-bold text-lg">{title}</h3>
+      <MdText className="flex flex-col gap-3" text={content} />
+    </div>
+  );
+};
 
 
 const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
@@ -149,7 +157,6 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [dialogContent, setDialogContent] = useState<string>('');
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
-  const [results, setResults] = useState<string[][]>(sheet);
   const [priorityFilter, setPriorityFilter] = useState<string>('');
   const filters = [
     'Low',
@@ -157,20 +164,33 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
     'High',
   ]
 
+  const openDialog = (identifier: string) => {
+    setDialogContent(identifier);
+    setDialogIsOpen(true);
+    updateQueryParams({dialog: identifier});
+  }
+
   const closeDialog = () => {
     setDialogIsOpen(false);
+    updateQueryParams({dialog: ''});
   };
 
   const handlePriorityFilter = (filter: string) => {
-    setPriorityFilter(filter);
-    updateQueryParams({ filter: filter });
+    const newFilter = filter === priorityFilter ? '' : filter;
+    setPriorityFilter(newFilter);
+    updateQueryParams({ filter: newFilter });
   }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const filterParam = params.get('filter');
+    const dialogParam = params.get('dialog');
+
     if (filterParam) {
       setPriorityFilter(filterParam);
+    }
+    if (dialogParam) {
+      openDialog(dialogParam);
     }
 
     if (tableHeaderRef?.current?.clientHeight) setHeaderHeight(tableHeaderRef.current.clientHeight)
@@ -180,80 +200,80 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
 
   return <>
     <CardHeader>
-        <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
-        <ToggleGroup type="single" variant="outline">
-          {filters.map(filter => (
-            filter.length ? <ToggleGroupItem
-              onClick={() => handlePriorityFilter(filter)}
-              key={filter}
-              value={filter}
-              aria-label={`Filter ${filter}`}
-            >
-              {filter}
-            </ToggleGroupItem> : ''
-          ))}
-          <ToggleGroupItem
-            onClick={() => handlePriorityFilter('')}
-            value=""
-            aria-label="Clear all filters"
+      <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
+      <ToggleGroup type="single" variant="outline" value={priorityFilter}>
+        {filters.map(filter => (
+          filter.length ? <ToggleGroupItem
+            onClick={() => handlePriorityFilter(filter)}
+            key={filter}
+            value={filter}
+            aria-label={`Filter ${filter}`}
           >
-            Clear all filters
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </CardHeader>
-      <CardContent className="flex gap-10 max-h-full overflow-hidden">
-        <Table>
-          <TableHeader ref={tableHeaderRef} className="top-0 sticky bg-white">
-            <TableRow>
-              {sheet[0].map((cell: string, i: number) => (
-                <TableHead
-                  key={i}
-                  className="align-top"
-                >
-                  {cell}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-          {results.slice(1).map((row, i:number) => (
-            <TableRow key={`row-${i}`}
-              className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-300' : ''}`}
-              style={{ top: headerHeight - 2}}
-            >
-              {row.map((cell, j:number) => {
-                let styledCell = cell.replace(/\bsticky\b\s*/g, '');
-                if (j === 4) return <TableCell
+            {filter}
+          </ToggleGroupItem> : ''
+        ))}
+        <ToggleGroupItem
+          onClick={() => handlePriorityFilter('')}
+          value=""
+          aria-label="Clear all filters"
+        >
+          Clear all filters
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </CardHeader>
+    <CardContent className="flex gap-10 max-h-full overflow-hidden">
+      <Table>
+        <TableHeader ref={tableHeaderRef} className="top-0 sticky bg-white">
+          <TableRow>
+            {sheet[0].map((cell: string, i: number) => (
+              <TableHead
+                key={i}
+                className="align-top"
+              >
+                {cell}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+        {sheet.slice(1).map((row, i:number) => (
+          <TableRow key={`row-${i}`}
+            className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-300' : ''}`}
+            style={{ top: headerHeight - 2}}
+          >
+            {row.map((cell, j:number) => {
+              let styledCell = cell.replace(/\bsticky\b\s*/g, '');
+              if (j === 4) return <TableCell
+              key={`cell-${i}-${j}`}
+              className="align-top gap-2"
+              rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+              >{parseAndRender(cell, openDialog)}</TableCell>;
+              if (cell === 'x') styledCell = '';
+              return <TableCell
                 key={`cell-${i}-${j}`}
-                className="align-top gap-2"
-                rowSpan={cell.length > 0 ? countEmptySpacesBelow(results, i, j) : 1}
-                >{parseAndRender(cell, setDialogContent, setDialogIsOpen)}</TableCell>;
-                if (cell === 'x') styledCell = '';
-                return <TableCell
-                  key={`cell-${i}-${j}`}
-                  className="align-top"
-                  rowSpan={cell.length > 0 ? countEmptySpacesBelow(results, i, j) : 1}
-                  ><CollapsibleMDText text={styledCell} /></TableCell>;
+                className="align-top"
+                rowSpan={cell.length > 0 ? countEmptySpacesBelow(sheet, i, j) : 1}
+                ><CollapsibleMDText text={styledCell} /></TableCell>;
 
-              })}
-            </TableRow>)
-          )}
-          </TableBody>
-        </Table>
-      </CardContent>
-      <Dialog open={dialogIsOpen} onOpenChange={closeDialog}>
-  <DialogContent aria-describedby={undefined} className="max-h-[80%] overflow-hidden">
-    <DialogHeader className="sticky top-0">
-      <DialogTitle>{formatPattern(dialogContent)}</DialogTitle>
-    </DialogHeader>
-    <div className="overflow-scroll max-h-[calc(80vh-80px)]">
-      {refContent?
-        <MdText text={refContent} /> :
-        <Owasp content={dialogContent} />
-      }
-    </div>
-  </DialogContent>
-</Dialog>
+            })}
+          </TableRow>)
+        )}
+        </TableBody>
+      </Table>
+    </CardContent>
+    <Dialog open={dialogIsOpen} onOpenChange={closeDialog}>
+      <DialogContent aria-describedby={undefined} className="max-h-[80%] overflow-hidden">
+        <DialogHeader className="sticky top-0">
+          <DialogTitle>{formatPattern(dialogContent)}</DialogTitle>
+        </DialogHeader>
+        <div className="overflow-scroll max-h-[calc(80vh-80px)]">
+          {refContent?
+            <MdText text={refContent} /> :
+            <Owasp section={dialogContent} />
+          }
+        </div>
+      </DialogContent>
+    </Dialog>
   </>
 }
 

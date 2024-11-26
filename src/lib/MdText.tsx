@@ -5,6 +5,10 @@ interface MdTextProps {
   className?: string;
 }
 
+marked.setOptions({
+  breaks: true,
+})
+
 const MdText= ({ text, className = '' }: MdTextProps) => {
   return <div className={className} dangerouslySetInnerHTML={{ __html:marked.parse(text) }} />
 };

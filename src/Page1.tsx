@@ -17,45 +17,20 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from 'src/components/ui/toggle-group';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "src/components/ui/dialog";
 import Fuse from 'fuse.js';
 import CollapsibleMDText from "./lib/CollapsibleMDText";
 import { updateQueryParams } from "./lib/utils";
-import { Toggle } from "./components/ui/toggle";
-
-const scrollToSelectedIdentifier = (href: string) => {
-  const el = document.querySelector(href);
-  el?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-}
 
 const generateArrayOfIdentifiers = (identifiers: string): string[] => {
   const regex = /[A-Z]{1,2}-\d{1,2}\b/g;
   const resultsArray = identifiers.match(regex);
   return resultsArray ?? [''];
-}
-
-const GenerateIdentifierLinks = (inputString: string) => {
-  // Define the regex pattern to match the entire string
-  const regex = /[A-Z]{1,2}-\d{1,2}\b/g;
-
-  if (regex.test(inputString)) {
-    const matches = inputString.match(regex);
-
-    if (matches) {
-      return matches.map((item, i) => {
-        return (
-          <button
-            key={`${i}-${item}`}
-            onClick={() => scrollToSelectedIdentifier(`#${item}`)}
-            className="mr-2 cursor:pointer underline hover:opacity-60"
-          >
-            {item.trim()}
-          </button>
-        );
-      });
-    }
-  }
-  // Return an empty array if the string does not match the pattern
-  return <CollapsibleMDText text={inputString} />;
 }
 
 interface PageProps {
@@ -71,15 +46,64 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeFilter, setActiveFilter] = useState<string>('');
+  const [dialogContent, setDialogContent] = useState<string>('');
+  const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 
+  const closeDialog = () => {
+    setDialogIsOpen(false);
+  };
+
+  const GenerateIdentifierLinks = (inputString: string) => {
+    // Define the regex pattern to match the entire string
+    const regex = /[A-Z]{1,2}-\d{1,2}\b/g;
+
+    if (regex.test(inputString)) {
+      const matches = inputString.match(regex);
+
+      if (matches) {
+        return matches.map((item, i) => {
+          return (
+            <button
+              key={`${i}-${item}`}
+              // onClick={() => scrollToSelectedIdentifier(`#${item}`)}
+              onClick={() => {
+                setDialogContent(item);
+                setDialogIsOpen(true);
+              }}
+              className="mr-2 cursor:pointer underline hover:opacity-60"
+            >
+              {item.trim()}
+            </button>
+          );
+        });
+      }
+    }
+    // Return an empty array if the string does not match the pattern
+    return <CollapsibleMDText text={inputString} />;
+  }
+
+  const getDialogContent = (identifier: string) => {
+    const content = sheet.find(row => row[0] === identifier);
+
+    return content ? (
+      <div className="flex flex-col gap-2">
+        {content.slice(0, -1).map((cell, i) => <div key={cell}>
+          <label className="text-sm text-muted-foreground">{sheet[0][i]}</label>
+          <p>{cell}<br /></p>
+        </div>)}
+
+      </div>
+    ) : (
+      <div></div>
+    );
+  };
   // TODO: add debounce to make search more efficient
 
   const fuse = new Fuse(sheet.slice(1), {
     keys: Array.from({ length: sheet[0].length }, (_, i) => `${i}`).filter(i => i !== '4'),
-    threshold: 0.3,
+    threshold: 0.2,
     includeScore: true,
-    useExtendedSearch: true,
-    shouldSort: true,
+    shouldSort: false,
   });
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,22 +118,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
     updateQueryParams({ filter: newFilter });
   };
 
-  // const handleArrayFilter = (filter: string[]) => {
-  //   // console.log(JSON.stringify(filter) )
-  //   // console.log(JSON.stringify(activeFilter))
-  //   const newFilter = JSON.stringify(filter) === JSON.stringify(activeFilter) ? '' : filter;
-  //   // console.log(newFilter)
-  //   setActiveFilter(newFilter);
-  // }
-
   useEffect(() => {
     // Check for query params and set it as filter and query
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const filterParam = params.get('filter');
     const searchParam = params.get('search');
-    if (filterParam && filterParam !== activeFilter) {
-      setActiveFilter(filterParam);
-    }
+
+    if (filterParam && filterParam !== activeFilter) setActiveFilter(filterParam);
     if (searchParam) setQuery(searchParam);
 
     // Filter by Query
@@ -207,13 +222,22 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
                   id={`${j === 0 ? cell : ""}`}
                 >
                   {j === 4 ? GenerateIdentifierLinks(cell) : <CollapsibleMDText text={cell} />}
-                  {/* {j === 4 && filters.length > 1 ? <Toggle className="block" onClick={() => handleArrayFilter(filters)}>Filter related</Toggle> : ""} */}
                   </TableCell>
                 })}</TableRow>
               })}
           </TableBody>
         </Table>
       </CardContent>
+      <Dialog open={dialogIsOpen} onOpenChange={closeDialog}>
+      <DialogContent aria-describedby={undefined} className="max-h-[80vh] overflow-hidden max-w-4xl">
+        <DialogHeader className="sticky top-0">
+          <DialogTitle>{}</DialogTitle>
+        </DialogHeader>
+        <div className="overflow-scroll max-h-[calc(80vh-80px)]">
+          {getDialogContent(dialogContent)}
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 };
