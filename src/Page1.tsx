@@ -48,6 +48,8 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
   const [activeFilter, setActiveFilter] = useState<string>('');
   const [dialogContent, setDialogContent] = useState<string>('');
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
+  const [idQuery, setIdQuery] = useState<string>('');
+  const [noMatchId, setNoMatchId] = useState<boolean>(false);
 
   const closeDialog = () => {
     setDialogIsOpen(false);
@@ -65,7 +67,6 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
           return (
             <button
               key={`${i}-${item}`}
-              // onClick={() => scrollToSelectedIdentifier(`#${item}`)}
               onClick={() => {
                 setDialogContent(item);
                 setDialogIsOpen(true);
@@ -106,6 +107,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
     shouldSort: false,
   });
 
+  const handleIdSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const idQuery = event.target.value;
+    setIdQuery(idQuery);
+    updateQueryParams({ searchId: idQuery });
+  };
+
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setQuery(query);
@@ -118,14 +126,37 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
     updateQueryParams({ filter: newFilter });
   };
 
+  const scrollToIdQuery = () => {
+    if (!idQuery) return;
+
+    // Convert idQuery to lowercase for case-insensitive comparison
+    const lowerCaseQuery = idQuery.toLowerCase();
+
+    // Find the first element whose id starts with idQuery (case-insensitive)
+    const el = Array.from(document.querySelectorAll('[id]')).find(
+      element => element.id.toLowerCase().startsWith(lowerCaseQuery)
+    );
+
+    if (el) {
+      // Scroll to the found element if it exists
+      setNoMatchId(false);
+      el.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    } else {
+      // Handle case where no match is found
+      setNoMatchId(true);
+    }
+  };
+
   useEffect(() => {
     // Check for query params and set it as filter and query
     const params = new URLSearchParams(window.location.hash.split('?')[1]);
     const filterParam = params.get('filter');
     const searchParam = params.get('search');
+    const searchIdParam = params.get('searchId');
 
     if (filterParam && filterParam !== activeFilter) setActiveFilter(filterParam);
     if (searchParam) setQuery(searchParam);
+    if (searchIdParam) setIdQuery(searchIdParam);
 
     // Filter by Query
     let searchResults = query ? fuse.search(query).map(result => result.item) : sheet.slice(1);
@@ -139,9 +170,13 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
       }
     }
 
+    scrollToIdQuery();
+
     setResults([sheet[0], ...searchResults]);
+
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, activeFilter]);
+  }, [query, activeFilter, idQuery]);
 
 
   const handleSort = (index: number) => {
@@ -162,13 +197,24 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
     <>
       <CardHeader>
         <CardTitle>{replaceUnderscoresWithSpaces(title)}</CardTitle>
-        <input
-          type="text"
-          value={query}
-          onChange={handleSearch}
-          placeholder="Search..."
-          className="mb-4 p-2 border rounded"
-        />
+        <div className="flex gap-5">
+          {title === "SP_800_53" &&
+            <input
+              type="text"
+              value={idQuery}
+              onChange={handleIdSearch}
+              placeholder="Search by ID..."
+              className={`mb-4 p-2 border rounded ${noMatchId ? 'text-red-500' : ''}`}
+            />
+          }
+          <input
+            type="text"
+            value={query}
+            onChange={handleSearch}
+            placeholder="Search by content..."
+            className="mb-4 p-2 border rounded flex-grow"
+          />
+        </div>
         {filters?.length ? <ToggleGroup type="single" variant="outline" value={activeFilter}>
           {filters.map(filter => (
             filter.length ? <ToggleGroupItem

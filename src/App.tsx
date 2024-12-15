@@ -115,7 +115,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-svh overflow:hidden">
+    <div className="h-svh overflow:hidden font-mono">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="md:hidden">Open</Button>
@@ -140,7 +140,7 @@ const App: React.FC = () => {
           </SheetContent>
         </Sheet>
         <main className="flex gap-5 p-5 h-full overflow-hidden">
-          <nav className="hidden md:flex items-stretch flex-col gap-5">
+          <nav className="hidden md:flex items-stretch flex-col gap-1">
             <Button onClick={() => navigate('')}>Home</Button>
             {Object.entries(data).map(([key]) =>
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
