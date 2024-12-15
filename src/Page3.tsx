@@ -30,9 +30,6 @@ import CollapsibleMDText from "./lib/CollapsibleMDText";
 import MdText from "./lib/MdText";
 import { owaspData } from 'src/lib/owasp-content';
 
-type StringStateSetter = React.Dispatch<React.SetStateAction<string>>;
-type BooleanStateSetter = React.Dispatch<React.SetStateAction<boolean>>;
-
 interface SheetProps {
   title: string;
   sheet: string[][];
