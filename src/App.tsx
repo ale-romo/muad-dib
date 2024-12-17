@@ -21,6 +21,7 @@ import Page4 from './Page4';
 import Page5 from './pages/Page5';
 import { replaceUnderscoresWithSpaces } from './lib/handleNames';
 import{ Card } from "src/components/ui/card"
+import NavTitle from './components/ui/NavTitle';
 
 type View = string;
 
@@ -145,6 +146,7 @@ const App: React.FC = () => {
             {Object.entries(data).map(([key]) =>
               <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
             )}
+            <NavTitle>Shortcuts</NavTitle>
             <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
             <Button onClick={() => navigate('blog')}>Blog</Button>
           </nav>
