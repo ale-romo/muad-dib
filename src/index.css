@@ -32,10 +32,10 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 120 90% 50%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card-foreground: 120 90% 50%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
@@ -93,6 +93,9 @@
     overflow: hidden;
     border-right: 2px solid black; /* Cursor effect */
     animation: typing 4s steps(40, end) 1s 1 normal both;
+  }
+  input {
+    @apply bg-secondary;
   }
 }
 

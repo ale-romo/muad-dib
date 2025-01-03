@@ -220,7 +220,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
     </CardHeader>
     <CardContent className="flex gap-10 max-h-full overflow-hidden">
       <Table>
-        <TableHeader ref={tableHeaderRef} className="top-0 sticky bg-white">
+        <TableHeader ref={tableHeaderRef} className="top-0 sticky bg-white dark:bg-black">
           <TableRow>
             {sheet[0].map((cell: string, i: number) => (
               <TableHead
@@ -235,7 +235,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
         <TableBody>
         {sheet.slice(1).map((row, i:number) => (
           <TableRow key={`row-${i}`}
-            className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-300' : ''}`}
+            className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-15' : ''}`}
             style={{ top: headerHeight - 2}}
           >
             {row.map((cell, j:number) => {

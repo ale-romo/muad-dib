@@ -17,7 +17,7 @@ import { AiRmfProps } from './lib/ai-rmf-content';
 import Worksheet from "src/components/Worksheet";
 import { updateQueryParams, checkParam } from './lib/utils';
 
-const SectionTitle = ({ children }: { children: React.ReactNode, top?: number }) => <h2  className="text-lg font-bold p-5 z-10 sticky bg-white top-0">{children}</h2>
+const SectionTitle = ({ children }: { children: React.ReactNode, top?: number }) => <h2  className="text-lg font-bold p-5 z-10 sticky top-0 bg-white dark:bg-black">{children}</h2>
 
 const scrollToSection =  (id: string) => {
   const el = document.querySelector(id);
@@ -96,7 +96,7 @@ const Page4: React.FC<AiRmfProps> = (props) => {
         {Object.entries(props).map(([key, steps]) => (
           <TabsContent value={key} key={`content-${key}`} className="h-full">
             <div className="flex flex-col h-full">
-              <div className="gap-3 flex justify-end items-center top-0 bg-white mx-5">
+              <div className="gap-3 flex justify-end items-center top-0 mx-5">
                 <label>{key}:</label>
                 {steps.map((step, i) => (
                   <Button key={`${step.title}`} variant={subsection === step.title ? "secondary" : "outline"} onClick={() => updateSubsection(step.title)}>{i+1}</Button>
@@ -116,7 +116,7 @@ const Page4: React.FC<AiRmfProps> = (props) => {
                   >
                     <SectionTitle>{step.title}:<br /> <span className="text-base">{step.description}</span></SectionTitle>
                     {step.steps.map((substep, j) => (
-                      <AccordionItem id={`${step.title}-${j+1}`}  value={`${step.title}-${j+1}`} key={`${step.title}-${j}`} className="[&:nth-child(odd)]:bg-gray-100/50 p-5">
+                      <AccordionItem id={`${step.title}-${j+1}`}  value={`${step.title}-${j+1}`} key={`${step.title}-${j}`} className="[&:nth-child(odd)]:bg-foreground/5 dark:[&:nth-child(odd)]:bg-background/5 p-5">
                         <AccordionTrigger className="text-left">
                           <div>
                             <MdText className="text-sm font-bold mb-2" text={substep[2]} />
