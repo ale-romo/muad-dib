@@ -52,7 +52,7 @@ const generateStaticContent = async () => {
       return `${replaceSpacesWithUnderscores(sheetName)}: [\n${rowsString}\n]`;
     }).join(',\n');
     const jsContent = `
-interface DataType {
+export interface DataType {
       [key: string]: string[][];
 }
 export const data:DataType = {

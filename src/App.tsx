@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from 'src/components/ui/toggle-group';
 import { data } from 'src/lib/content';
 import { aiRmfData, AiRmfProps } from 'src/lib/ai-rmf-content';
 import { blogData } from './content/blog-content';
@@ -23,12 +19,11 @@ import Page2 from './Page2';
 import Page3 from './Page3';
 import Page4 from './Page4';
 import Page5 from './pages/Page5';
-import { replaceUnderscoresWithSpaces } from './lib/handleNames';
+import Nav from './components/Nav';
 import{ Card } from "src/components/ui/card"
-import NavTitle from './components/ui/NavTitle';
 
-type View = string;
-type Themes = 'light' | 'dark';
+export type View = string;
+export type Themes = 'light' | 'dark';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('');
@@ -124,46 +119,27 @@ const App: React.FC = () => {
   return (
     <div className={`h-svh overflow:hidden font-mono ${theme}`}>
       <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="outline" className="md:hidden">Open</Button>
-        </SheetTrigger>
+        <div className="flex w-full justify-between p-5">
+          <h1>Muad'Dib</h1>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="md:hidden">Menu</Button>
+          </SheetTrigger>
+        </div>
         <SheetContent side="left" className="flex flex-col">
           <SheetHeader>
             <SheetTitle>Muad'Dib</SheetTitle>
             <SheetDescription>
               Access the forbidden knowledge
             </SheetDescription>
+            <Nav navigate={navigate} setTheme={setTheme} theme={theme} data={data} />
           </SheetHeader>
-          <nav>
-            <SheetClose asChild>
-              <Button onClick={() => navigate('')}>Home</Button>
-            </SheetClose>
-            {Object.entries(data).map(([key]) =>
-              <SheetClose key={key} asChild>
-                <Button onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
-              </SheetClose>
-            )}
-          </nav>
+          <SheetClose asChild />
         </SheetContent>
       </Sheet>
-      <main className="flex gap-5 p-5 h-full overflow-hidden dark:bg-black">
-        <nav className="hidden md:flex items-stretch flex-col gap-1">
-          <Button onClick={() => navigate('')}>Home</Button>
-          {Object.entries(data).map(([key]) =>
-            <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
-          )}
-          <NavTitle>Shortcuts</NavTitle>
-          <Button onClick={() => navigate('AI_RMF')}>NIST AI RMF</Button>
-          <Button onClick={() => navigate('blog')}>Blog</Button>
-          <ToggleGroup type="single" variant="outline" value={theme}>
-            <ToggleGroupItem onClick={() => setTheme('dark')} value="dark">
-              D
-            </ToggleGroupItem>
-            <ToggleGroupItem onClick={() => setTheme('light')} value="light" className={`dark:text-foreground`}>
-              L
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </nav>
+      <main className="flex gap-5 p-5 pt-0 h-full overflow-hidden dark:bg-black">
+        <div className="hidden md:flex">
+          <Nav navigate={navigate} setTheme={setTheme} theme={theme} data={data} />
+        </div>
         <Card className="flex flex-col w-full justify-start">{renderView()}</Card>
       </main>
     </div>
