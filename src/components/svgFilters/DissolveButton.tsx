@@ -3,13 +3,14 @@ import useDissolveEffect from './useDissolveEffect';
 
 const DissolveButton = () => {
   const buttonRef = useRef(null);
-  const { dissolve, DissolveEffect, styles } = useDissolveEffect(buttonRef);
+  const { dissolve, reintegrate, DissolveEffect, styles } = useDissolveEffect(buttonRef);
 
   return (
     <>
       <div
         ref={buttonRef}
-        onClick={dissolve}
+        onMouseEnter={dissolve}
+        onMouseLeave={reintegrate}
         style={{
           ...styles,
           padding: '16px 48px',

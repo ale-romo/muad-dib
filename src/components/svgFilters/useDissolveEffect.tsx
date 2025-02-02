@@ -3,31 +3,32 @@ import DissolveFilter from './DissolveFilter';
 
 type UseDissolveEffectReturn = {
   dissolve: () => void;
+  reintegrate: () => void;
   DissolveEffect: () => JSX.Element | null;
   styles: { filter: string };
 };
 
 const useDissolveEffect = (elementRef: React.RefObject<HTMLElement>): UseDissolveEffectReturn => {
   const filterRef = useRef<SVGFEComponentTransferElement>(null);
-  const [state, setState] = useState<'idle' | 'dissolving' | 'dissolved'>('idle');
+  const [state, setState] = useState<'idle' | 'dissolving' | 'dissolved' | 'reintegrating'>('idle');
 
   useEffect(() => {
-    if (!elementRef.current || state !== 'dissolving') return;
+    if (!elementRef.current || (state !== 'dissolving' && state !== 'reintegrating')) return;
 
     const startTime = performance.now();
-    const ANIMATION_DURATION = 600; // Animation duration in ms
-    const FADE_START_POINT = 0.3; // When to start fading out
+    const ANIMATION_DURATION = 600;
+    // const FADE_START_POINT = 0.3;
+    const isDissolving = state === 'dissolving';
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
 
-      // Calculate displacement scale
-      const displacementScale = (1 - Math.cos((progress * Math.PI) / 1.5)) * 300;
-
-      // Calculate opacity
-      const opacityProgress = Math.max(0, (progress - FADE_START_POINT) / (1 - FADE_START_POINT));
-      const opacity = 1 - opacityProgress;
+      // Adjust values based on dissolve or reintegrate
+      const factor = isDissolving ? 1 - Math.cos(progress) : Math.sin(progress * Math.PI) * (1 - progress);
+      const displacementScale = factor * 300;
+      // const opacityProgress = Math.max(0, (progress - FADE_START_POINT) / (1 - FADE_START_POINT));
+      // const opacity = isDissolving ? 1 - opacityProgress : opacityProgress;
 
       // Update filter scale
       if (filterRef.current) {
@@ -35,14 +36,14 @@ const useDissolveEffect = (elementRef: React.RefObject<HTMLElement>): UseDissolv
       }
 
       // Update element opacity
-      if (elementRef.current) {
-        elementRef.current.style.opacity = opacity.toString();
-      }
+      // if (elementRef.current) {
+      //   elementRef.current.style.opacity = opacity.toString();
+      // }
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setState('dissolved');
+        setState(isDissolving ? 'dissolved' : 'idle');
       }
     };
 
@@ -55,8 +56,14 @@ const useDissolveEffect = (elementRef: React.RefObject<HTMLElement>): UseDissolv
     }
   };
 
+  const reintegrate = () => {
+    if (state === 'dissolved') {
+      setState('reintegrating');
+    }
+  };
+
   const DissolveEffect = () => {
-    if (state === 'dissolving') {
+    if (state === 'dissolving' || state === 'reintegrating') {
       const width = elementRef.current?.offsetWidth ?? 0;
       const height = elementRef.current?.offsetHeight ?? 0;
 
@@ -76,6 +83,7 @@ const useDissolveEffect = (elementRef: React.RefObject<HTMLElement>): UseDissolv
 
   return {
     dissolve,
+    reintegrate,
     DissolveEffect,
     styles: { filter: 'url(#dissolve-filter)' },
   };
