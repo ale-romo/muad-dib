@@ -7,8 +7,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from 'src/components/ui/toggle-group';
-import DissolveButton from './svgFilters/DissolveButton';
-
+import Jiggle from './ui/Jiggle';
 interface Props {
   navigate: (newView: View) => void;
   setTheme: React.Dispatch<React.SetStateAction<Themes>>;
@@ -17,25 +16,31 @@ interface Props {
 }
 
 const Nav = ({ navigate, setTheme, theme, data }: Props) => <nav className="flex items-stretch flex-col gap-1">
-  <Button onClick={() => navigate('')}>Home</Button>
+  <Jiggle>
+    <Button onClick={() => navigate('')}>Home</Button>
+  </Jiggle>
   <NavTitle>Auditing & Incident Report</NavTitle>
   {Object.entries(data).map(([key], i) => {
-
     return <span key={key} className="w-full flex flex-col">
       {i === 4 && <NavTitle>Publications & Frameworks</NavTitle>}
       {i === 6 &&
         <>
-          <Button onClick={() => navigate('AI_RMF')} className="w-full">NIST AI RMF</Button>
+          <Jiggle>
+            <Button onClick={() => navigate('AI_RMF')} className="w-full">NIST AI RMF</Button>
+          </Jiggle>
           <NavTitle>Helpful</NavTitle>
         </>
       }
-      <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
+      <Jiggle>
+        <Button key={key} onClick={() => navigate(key)}>{replaceUnderscoresWithSpaces(key)}</Button>
+      </Jiggle>
     </span>
   })}
   <NavTitle>Community</NavTitle>
-  <Button onClick={() => navigate('blog')}>Blog</Button>
+  <Jiggle>
+    <Button onClick={() => navigate('blog')}>Blog</Button>
+  </Jiggle>
   <ToggleGroup type="single" variant="outline" value={theme}>
-    <DissolveButton />
     <ToggleGroupItem onClick={() => setTheme('dark')} value="dark">
       D
     </ToggleGroupItem>

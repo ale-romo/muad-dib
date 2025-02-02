@@ -1,25 +1,24 @@
 import { forwardRef } from 'react';
 
 interface DissolveFilterProps {
+  id: string;
   height: number;
   seed: number;
   width: number;
 }
 
-const DissolveFilter = forwardRef<SVGFEComponentTransferElement, DissolveFilterProps>(
-  (props, ref) => {
-    const { height, seed, width } = props;
-
+const DissolveFilter = forwardRef<SVGFEDisplacementMapElement, DissolveFilterProps>(
+  ({ height, seed, width, id }, ref) => {
     return (
       <svg
         overflow="visible"
-        style={{ position: 'absolute' }}
+        style={{ position: 'absolute', pointerEvents: 'none' }}
         viewBox={`0 0 ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <filter
-            id="dissolve-filter"
+            id={id}
             width="400%"
             height="400%"
             x="-200%"
@@ -67,5 +66,8 @@ const DissolveFilter = forwardRef<SVGFEComponentTransferElement, DissolveFilterP
     );
   }
 );
+
+// Helps with debugging in React DevTools
+DissolveFilter.displayName = "DissolveFilter";
 
 export default DissolveFilter;
