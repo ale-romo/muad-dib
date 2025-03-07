@@ -80,7 +80,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
       }
     }
     // Return an empty array if the string does not match the pattern
-    return <CollapsibleMDText text={inputString} />;
+    return <CollapsibleMDText text={inputString} maxLength={40} />;
   }
 
   const getDialogContent = (identifier: string) => {
@@ -238,7 +238,7 @@ const Page1: React.FC<PageProps> = ({ sheet, title, filters }) => {
       </CardHeader>
       <CardContent className="flex gap-10 max-h-full overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-white dark:bg-dark">
             <TableRow>
               {results[0].map((cell: string, i: number) => (
                 <TableHead

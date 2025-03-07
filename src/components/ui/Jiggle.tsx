@@ -16,9 +16,9 @@ const Jiggle = ({ children }: { children: ReactNode}) => {
   const uniqueFilterId = `dissolve-filter-${filterId}`;
 
   const animate = () => {
-    const nextCounter = incrementing ? counterRef.current + 1 : counterRef.current - 1;
+    const nextCounter = incrementing ? counterRef.current + 2 : counterRef.current - 2;
     const normalizedCounter = counterRef.current <= 25 ? counterRef.current : 50 - counterRef.current;
-    const factor = Math.cos(normalizedCounter * Math.PI) * (1 - normalizedCounter);
+    const factor = Math.cos(normalizedCounter * Math.PI) * (1 - normalizedCounter) * .5;
 
     if (filterRef.current) {
       filterRef.current.setAttribute('scale', factor.toString());

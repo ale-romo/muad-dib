@@ -23,7 +23,7 @@ import Nav from './components/Nav';
 import{ Card } from "src/components/ui/card"
 
 export type View = string;
-export type Themes = 'light' | 'dark';
+export type Themes = 'light' | 'dark' | 'fun';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('');

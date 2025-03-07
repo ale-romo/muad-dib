@@ -235,7 +235,7 @@ const Page3: React.FC<SheetProps> = ({ sheet, title, references }) => {
         <TableBody>
         {sheet.slice(1).map((row, i:number) => (
           <TableRow key={`row-${i}`}
-            className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-slate-15' : ''}`}
+            className={`${row[0].includes('sticky') ? 'sticky bg-secondary' : ''} ${row[2] === priorityFilter ? 'bg-secondary' : ''}`}
             style={{ top: headerHeight - 2}}
           >
             {row.map((cell, j:number) => {
